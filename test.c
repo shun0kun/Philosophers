@@ -3,31 +3,34 @@
 #include <time.h>
 #include <unistd.h>
 
-void	*thread_func(void *arg)
-{
-	int	*num = (int *)arg;
+pthread_mutex_t	mtx;
 
-	*num = 2;
-	usleep(1000000);
-	printf("%d\n", *num);
+void	*thread(void *arg)
+{
+	int	*p_sec = (int *)arg;
+
+	for (int i = 0; i < 10000; i++)
+	{
+		pthread_mutex_lock(&mtx);
+		(*p_sec)++;
+		pthread_mutex_unlock(&mtx);
+	}
 	return (NULL);
 }
 
 int	main(void)
 {
-	pthread_t	thread;
-	int			val;
+	pthread_t	p1;
+	pthread_t	p2;
+	int	cnt;
 
-	val = 0;
-	if (pthread_create(&thread, NULL, thread_func, (void *)&val))
-	{
-		printf("fail\n");
-		return (1);
-	}
-	usleep(1);
-	val = 1;
-	usleep(500000);
-	printf("%d", val);
-	pthread_join(thread, NULL);
+	cnt = 0;
+	pthread_mutex_init(&mtx, NULL);
+	pthread_create(&p1, NULL, thread, &cnt);
+	pthread_create(&p2, NULL, thread, &cnt);
+	pthread_join(p1, NULL);
+	pthread_join(p2, NULL);
+	pthread_mutex_destroy(&mtx);
+	printf("%d\n", cnt);
 	return (0);
 }
