@@ -1,31 +1,25 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <sys/time.h>
+#include <stdlib.h>
 
-int	rem(int a, int b)
+int	main(int argc, char **argv)
 {
-	if (b == 0)
-		return (0);
-	if (b < 0)
-		b = -b;
-	if (a < 0)
-	{
-		if (a % b == 0)
-			return (0);
-		else
-			return (a - b * (a / b - 1));
-	}
-	return (a % b);
-}
-
-int	next_turn(int turn, int range)
-{
-	return (rem(turn + 1, range));
-}
-
-int	main(void)
-{
-	for (int i = -10; i < 10; i++)
-		printf("%d -> %d\n", i, next_turn(i, 3));
+	struct timeval	tp;
+	int				f;
+	int				l;
+	int				time_to_wait;
+	
+	if (argc != 2)
+		return (1);
+	time_to_wait = atoi(argv[1]);
+	gettimeofday(&tp, NULL);
+	printf("%ld,%ld\n", tp.tv_sec, tp.tv_usec);
+	f = tp.tv_usec / 1000;
+	usleep(time_to_wait * 1000);
+	gettimeofday(&tp, NULL);
+	l = tp.tv_usec / 1000;
+	printf("f=%d, l=%d, Δt=%d\n", f, l, l - f);
 	return (0);
 }

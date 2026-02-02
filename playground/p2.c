@@ -4,18 +4,12 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-typedef enum e_cs_state
-{
-	BUSY,
-	IDLE
-}	t_cs_state;
-
 typedef struct s_shared
 {
 	pthread_mutex_t	*mu;
-	t_cs_state		chopsticks;
 	int				time_to_eat;
 	int				number_of_people;
+	int				start_time;
 }	t_shared;
 
 typedef struct s_psn
@@ -25,6 +19,14 @@ typedef struct s_psn
 	t_shared	*shared;
 }	t_psn;
 
+void	print_log(int id, const char *msg, int start_time)
+{
+	struct timeval	tp;
+
+	gettimeofday(&tp, NULL);
+	printf("%ld\t%d\t%s\n", tp.tv_sec * 1000 - start_time, id, msg);
+}
+
 void	*person(void *arg)
 {
 	t_psn	*me;
@@ -32,13 +34,12 @@ void	*person(void *arg)
 	me = (t_psn *)arg;
 	while (me->eat_count > 0)
 	{
-		pthread_mutex_lock(&me->shared->mu);
-		if (me->shared->chopsticks == IDLE)
-		{
-			me->
-		}
+		print_log(me->id, "is thinking", me->shared->start_time);
+		pthread_mutex_lock(me->shared->mu);
+		print_log(me->id, "is eating", me->shared->start_time);
+		usleep(me->shared->time_to_eat * 1000);
 		me->eat_count--;
-		pthread_mutex_unlock(&me->shared->mu);
+		pthread_mutex_unlock(me->shared->mu);
 	}
 	return (NULL);
 }
@@ -49,8 +50,9 @@ int	main(int argc, char **argv)
 	pthread_mutex_t	mu;
 	t_psn			*psn;
 	t_shared		shared;
+	struct timeval	tp;
 
-	if (argv != 4)
+	if (argc != 4)
 	{
 		dprintf(STDERR_FILENO, "Input error\n");
 		return (1);
@@ -65,6 +67,8 @@ int	main(int argc, char **argv)
 	if (!psn)
 		return (1);
 	pthread_mutex_init(&mu, NULL);
+	gettimeofday(&tp, NULL);
+	shared.start_time = tp.tv_sec * 1000;
 	for (int i = 0; i < shared.number_of_people; i++)
 	{
 		psn[i].id = i;
@@ -75,5 +79,7 @@ int	main(int argc, char **argv)
 	for (int i = 0; i < shared.number_of_people; i++)
 		pthread_join(threads[i], NULL);
 	pthread_mutex_destroy(&mu);
+	free(threads);
+	free(psn);
 	return (0);
 }
