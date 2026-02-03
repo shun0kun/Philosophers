@@ -7,9 +7,9 @@
 typedef struct s_shared
 {
 	pthread_mutex_t	*mu;
-	int				time_to_eat;
 	int				number_of_people;
-	int				start_time;
+	long long		time_to_eat;
+	long long		start_time;
 }	t_shared;
 
 typedef struct s_psn
@@ -19,12 +19,12 @@ typedef struct s_psn
 	t_shared	*shared;
 }	t_psn;
 
-void	print_log(int id, const char *msg, int start_time)
+void	print_log(int id, const char *msg, long long start_time)
 {
 	struct timeval	tp;
 
 	gettimeofday(&tp, NULL);
-	printf("%ld\t%d\t%s\n", tp.tv_sec * 1000 - start_time, id, msg);
+	printf("%lld\t%d\t%s\n", ((long long)tp.tv_sec * 1000000LL + (long long)tp.tv_usec) / 1000LL - start_time, id, msg);
 }
 
 void	*person(void *arg)
@@ -32,18 +32,21 @@ void	*person(void *arg)
 	t_psn	*me;
 
 	me = (t_psn *)arg;
+	if (me->id % 2 == 0)
+		usleep(me->shared->time_to_eat * 1000);
 	while (me->eat_count > 0)
 	{
 		print_log(me->id, "is thinking", me->shared->start_time);
 		pthread_mutex_lock(me->shared->mu);
 		print_log(me->id, "is eating", me->shared->start_time);
-		usleep(me->shared->time_to_eat * 1000);
+		usleep(me->shared->time_to_eat * 1000LL);
 		me->eat_count--;
 		pthread_mutex_unlock(me->shared->mu);
 	}
 	return (NULL);
 }
 
+// ./program numberofpeople timetoeat eatcount
 int	main(int argc, char **argv)
 {
 	pthread_t		*threads;
@@ -68,7 +71,7 @@ int	main(int argc, char **argv)
 		return (1);
 	pthread_mutex_init(&mu, NULL);
 	gettimeofday(&tp, NULL);
-	shared.start_time = tp.tv_sec * 1000;
+	shared.start_time = ((long long)tp.tv_sec * 1000000LL + (long long)tp.tv_usec) / 1000LL;
 	for (int i = 0; i < shared.number_of_people; i++)
 	{
 		psn[i].id = i;
