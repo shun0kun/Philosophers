@@ -7,7 +7,6 @@ typedef struct s_shared
 {
 	pthread_mutex_t	*forks;
 	long long		start_time;
-	int				someone_has_died;
 	int				number_of_philosophers;
 	int				time_to_die;
 	long long		time_to_eat;
@@ -19,6 +18,7 @@ typedef struct s_philo
 {
 	int			id;
 	int			times_i_must_eat;
+	long long	start_eating_time;
 	t_shared	*shared;
 }	t_philo;
 
@@ -63,45 +63,95 @@ void	put_forks(pthread_mutex_t *fork1, pthread_mutex_t *fork2)
 	pthread_mutex_unlock(fork2);
 }
 
-void	wait(t_philo *philo)
+int	wait(t_philo *philo)//
 {
 	if (philo->shared->number_of_philosophers % 2 == 0)
 	{
-		if (philo->id % 2 == 1)
+		if (philo->id % 2 != 0)
 			usleep(philo->shared->time_to_eat * 1000);
 	}
 	else
 	{
-		if (philo->id % 2 == 1)
+		if (philo->id % 2 != 0)
 			usleep(philo->shared->time_to_eat * 1000 * 2);
 		else if (philo->id != 0 && philo->id % 2 == 0)
 			usleep(philo->shared->time_to_eat * 1000 * 3);
 	}
+	return (0);
 }
 
-//自身の飢餓チェックと全員の飢餓チェックをする。forkのとり方を考える。
+int	philo_eat(t_philo *philo)
+{
+	while (get_current_unixtime_ms() - philo->start_eating_time < philo->shared->time_to_eat)
+	{
+		if (get_current_unixtime_ms() - philo->start_eating_time >= philo->shared->time_to_die)
+			return (-1);
+		usleep(100);
+	}
+	return (0);
+}
+
+int	philo_sleep(t_philo *philo)
+{
+	while (get_current_unixtime_ms() - philo->start_eating_time < philo->shared->time_to_sleep)
+	{
+		if (get_current_unixtime_ms() - philo->start_eating_time >= philo->shared->time_to_die)
+			return (-1);
+		usleep(100);
+	}
+	return (0);
+}
+
+int	take_forks(t_philo *me)
+{
+	while (1)
+	{
+		if (get_current_unixtime_ms() - me->start_eating_time >= me->shared->time_to_die)
+			return (-1);
+		pthread_mutex_lock(&me->shared->forks[me->id]);
+		if (pthread_mutex_lock(&me->shared->forks[rem(me->id + 1, 3)]) == 0)
+			break ;
+		pthread_mutex_unlock(&me->shared->forks[me->id]);
+		usleep(100);//この少しの停止になんの意味があるのか。デッドロックを防ぐ効果はあるのか。
+	}
+	return (0);
+}
+
 void	*philosopher(void *arg)
 {
 	t_philo	*me;
 
 	me = (t_philo *)arg;
-	wait(me);
+	me->start_eating_time = get_current_unixtime_ms();
+	if (wait(me) < 0)
+		return (NULL);
 	while (1)
 	{
-		take_forks(&me->shared->forks[me->id], &me->shared->forks[rem(me->id + 1, 3)]);//
-		print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "is eating");
-		me->times_i_must_eat--;
-		if (me->times_i_must_eat <= 0)
+
+		if (take_forks(me) < 0)
+		{
+			print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "has died");
 			break ;
-		if (eat() < 0)
+		}
+		me->start_eating_time = get_current_unixtime_ms();
+		print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "is eating");
+		if (philo_eat(me) < 0)
 		{
 			put_forks(&me->shared->forks[me->id], &me->shared->forks[rem(me->id + 1, 3)]);
 			print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "has died");
 			break ;
 		}
-		print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "is sleeping");
-		print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "is thinking");
+		me->times_i_must_eat--;
 		put_forks(&me->shared->forks[me->id], &me->shared->forks[rem(me->id + 1, 3)]);
+		if (me->shared->option_flag && me->times_i_must_eat <= 0)
+			break ;
+		print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "is sleeping");
+		if (philo_sleep(me) < 0)
+		{
+			print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "has died");
+			break ;
+		}
+		print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "is thinking");
 	}
 	return (NULL);
 }
