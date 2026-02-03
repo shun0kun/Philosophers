@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 typedef struct s_shared
 {
@@ -50,11 +51,6 @@ long long	get_current_unixtime_ms(void)
 void	print_log(long long timestamp, int id, const char *msg)
 {
 	printf("%lld\t%d\t%s\n", timestamp, id, msg);
-}
-
-void	take_fork(pthread_mutex_t *fork1, pthread_mutex_t *fork2)
-{
-
 }
 
 void	put_forks(pthread_mutex_t *fork1, pthread_mutex_t *fork2)
@@ -109,7 +105,7 @@ int	take_forks(t_philo *me)
 		if (get_current_unixtime_ms() - me->start_eating_time >= me->shared->time_to_die)
 			return (-1);
 		pthread_mutex_lock(&me->shared->forks[me->id]);
-		if (pthread_mutex_lock(&me->shared->forks[rem(me->id + 1, 3)]) == 0)
+		if (pthread_mutex_lock(&me->shared->forks[rem(me->id + 1, me->shared->number_of_philosophers)]) == 0)
 			break ;
 		pthread_mutex_unlock(&me->shared->forks[me->id]);
 		usleep(100);//この少しの停止になんの意味があるのか。デッドロックを防ぐ効果はあるのか。
@@ -117,6 +113,8 @@ int	take_forks(t_philo *me)
 	return (0);
 }
 
+//哲学者１人のときデッドロックしてる。
+//哲学者奇数人のとき餓死してる。
 void	*philosopher(void *arg)
 {
 	t_philo	*me;
@@ -125,37 +123,41 @@ void	*philosopher(void *arg)
 	me->start_eating_time = get_current_unixtime_ms();
 	if (wait(me) < 0)
 		return (NULL);
+	// printf("[id=%d, start=%lld]\n", me->id, get_current_unixtime_ms() - me->start_eating_time);
 	while (1)
 	{
 
 		if (take_forks(me) < 0)
 		{
-			print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "has died");
+			print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "has died");fflush(stdout);
 			break ;
 		}
 		me->start_eating_time = get_current_unixtime_ms();
-		print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "is eating");
+		print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "is eating");fflush(stdout);
+		// printf("<%d回>\n", me->times_i_must_eat);
 		if (philo_eat(me) < 0)
 		{
-			put_forks(&me->shared->forks[me->id], &me->shared->forks[rem(me->id + 1, 3)]);
-			print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "has died");
+			put_forks(&me->shared->forks[me->id], &me->shared->forks[rem(me->id + 1, me->shared->number_of_philosophers)]);
+			print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "has died");fflush(stdout);
 			break ;
 		}
 		me->times_i_must_eat--;
-		put_forks(&me->shared->forks[me->id], &me->shared->forks[rem(me->id + 1, 3)]);
+		put_forks(&me->shared->forks[me->id], &me->shared->forks[rem(me->id + 1, me->shared->number_of_philosophers)]);
 		if (me->shared->option_flag && me->times_i_must_eat <= 0)
 			break ;
-		print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "is sleeping");
+		print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "is sleeping");fflush(stdout);//ここmutexで守らないと危険
 		if (philo_sleep(me) < 0)
 		{
-			print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "has died");
+			print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "has died");fflush(stdout);//ここmutexで守らないと危険
 			break ;
 		}
-		print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "is thinking");
+		print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "is thinking");fflush(stdout);//ここmutexで守らないと危険
 	}
+	// printf("%d fin\n", me->id);
 	return (NULL);
 }
 
+// ./program 人数 逝く時間 食べる時間 寝る時間 食べる回数
 int	main(int argc, char **argv)
 {
 	pthread_t		*threads;
@@ -169,10 +171,10 @@ int	main(int argc, char **argv)
 		shared.option_flag = 1;
 	else
 		return (1);
-	shared.number_of_philosophers = ft_atoi(argv[1]);
-	shared.time_to_die = ft_atoi(argv[2]);
-	shared.time_to_eat = ft_atoi(argv[3]);
-	shared.time_to_sleep = ft_atoi(argv[4]);
+	shared.number_of_philosophers = atoi(argv[1]);
+	shared.time_to_die = atoi(argv[2]);
+	shared.time_to_eat = atoi(argv[3]);
+	shared.time_to_sleep = atoi(argv[4]);
 	threads = malloc(sizeof(pthread_t) * shared.number_of_philosophers);
 	if (!threads)
 		return (1);
@@ -184,23 +186,24 @@ int	main(int argc, char **argv)
 		return (1);
 	i = 0;
 	while (i < shared.number_of_philosophers)
-		pthread_mutex_init(&shared.forks[i], NULL);
+		pthread_mutex_init(&shared.forks[i++], NULL);
 	shared.start_time = get_current_unixtime_ms();
 	i = 0;
 	while (i < shared.number_of_philosophers)
 	{
 		philo[i].id = i;
 		if (shared.option_flag)
-			philo[i].times_i_must_eat = ft_atoi(argv[5]);
+			philo[i].times_i_must_eat = atoi(argv[5]);
 		philo[i].shared = &shared;
 		pthread_create(&threads[i], NULL, philosopher, &philo[i]);
+		i++;
 	}
 	i = 0;
 	while (i < shared.number_of_philosophers)
-		pthread_join(threads[i], NULL);
+		pthread_join(threads[i++], NULL);
 	i = 0;
 	while (i < shared.number_of_philosophers)
-		pthread_mutex_destroy(&shared.forks[i]);
+		pthread_mutex_destroy(&shared.forks[i++]);
 	free(threads);
 	free(philo);
 	free(shared.forks);
