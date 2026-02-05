@@ -20,3 +20,31 @@ starvationを完璧に防ぐのは難しいのでできるところまででい�
 ・pdfを見た感じ、forkはmutexで表す以外の方法もあるのかもしれない。その方法も今度考えてみよう。
 ・デッドロックの原因特定の方法について考える。
 ・デッドロックに関する理論を学んで、デッドロックが生じないような設計を学び、デッドロックの原因を特定できるようになる。
+・./philo 2 1000 500 510 10で飢餓するはずなのにしない。
+・//take_forks関数fork持てないとき、待ち続けるから飢餓しても待ち続けて食べて生き延びてしまう。戻り値も帰ってこないらしい。飢餓チェックする方法を考えよう。デッドロック防げなくね？
+・mutex１個方式でも作ってみるか。mutexでforkを表す方式だと、フォークおいたあとのlogとかがスレッドセーフでない設計になる。それに対処するためにさらにmutexが必要となる。
+・./philo 10 1000 500 500 5みたいなぎりぎりの際どいケースで飢餓してしまう。
+・今は最初だけ少し調節してあとは早いものがちで食べる方式になってるから、ちゃんと終始順番にみんな食べれるように列に並んでもらうようにしよう。そうじゃないと誰かずっと食べれないひとが出てくる。でもそれって互いに意思伝達してるってことになる運命にあるのかもしれない。そうなれば仕様違反だからできない。
+・t_fork_stateもmutexも両方number_of_philosophers分用意して、1forkに1mutexを守らせる方式でもいいのかもしれない。mutexってもっと気軽にたくさん作ってつかっていいやつなのかね。それを判断する基準は？計算量？メモリ消費量？設計？
+・writeにかかる時間ってどれくらい？
+・write用のutex、fork用のmutexみたいに分けるのはどう？共用しすぎると、渋滞しない？
+・whileループでCPU酷使しまくる問題について考える。usleep入れるのがいいのか。どれくらい改善されるのか。精度に問題を及ぼさないのか。
+・mutex1個だけだと哲学者の数が増えたときに鍵待ちによる遅延の影響が大きくなりそう。哲学者が10000とか大きい値のときも通用する設計なのか。よく考えてみるのがいい。mutexは必要な分だけ惜しみなく使うのが優れた設計のために必要なのかもしれない。各forkのために1つずつmutex、print用に1つmutex。
+・forkをutex自身で表してしまうかどうかはよく考えておこう。何が問題なのか。逆に嬉しいことは何なのか。
+・forkがIDLEかBUSYかしか分からないようになってるけど、誰が所有しているかはわかるようにしておいたほうがいいかな。これについても考えておこう。
+・時間チェックの境界、=入れるか入れないのか明確にしておく。
+・./philo 2 1 0 0みたいに値をめっちゃ小さくしたときに飢餓してしまうのは仕方がない？
+・1 mutex per 1 fork説濃厚。作ろう。　
+・偶奇グループ分け法厳しいかも。テストケース５に対応できないかも。
+・ノートに書いてあった、奇数時のdelay制御を実装してみよう。どのみち偶奇分け方式はボツかもしれないが。
+
+# TEST CASE
+・Do not test with more than 200 philosophers.
+・Do not test with time_to_die or time_to_eat or time_to_sleep set to values lower than 60 ms.
+1. 1 800 200 200 				-> should not eat and should die.
+2. 5 800 200 200 				-> No one should die.
+3. 5 800 200 200 7 				-> No one should die and the sumilation should stop when every philosopher has eaten at least 7 times.
+4. 4 410 200 200 				-> No one should die.
+5. 4 310 200 100 				-> One philosopher should die.
+6. 2 * * * * 					-> a death delayed by more than 10 ms is unacceptable.
+7. * * * * * 					-> philosophers should die at the right time, that they don't steal forks, and so forth.

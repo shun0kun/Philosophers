@@ -69,9 +69,9 @@ int	wait(t_philo *philo)//
 	else
 	{
 		if (philo->id % 2 != 0)
-			usleep(philo->shared->time_to_eat * 1000 * 2);
+			usleep(philo->shared->time_to_eat * 1000);
 		else if (philo->id != 0 && philo->id % 2 == 0)
-			usleep(philo->shared->time_to_eat * 1000 * 3);
+			usleep(philo->shared->time_to_eat * 1000 * 2);
 	}
 	return (0);
 }
@@ -89,7 +89,10 @@ int	philo_eat(t_philo *philo)
 
 int	philo_sleep(t_philo *philo)
 {
-	while (get_current_unixtime_ms() - philo->start_eating_time < philo->shared->time_to_sleep)
+	long long	start_sleep_time;
+
+	start_sleep_time = get_current_unixtime_ms();
+	while (get_current_unixtime_ms() - start_sleep_time < philo->shared->time_to_sleep)
 	{
 		if (get_current_unixtime_ms() - philo->start_eating_time >= philo->shared->time_to_die)
 			return (-1);
@@ -104,7 +107,7 @@ int	take_forks(t_philo *me)
 	{
 		if (get_current_unixtime_ms() - me->start_eating_time >= me->shared->time_to_die)
 			return (-1);
-		pthread_mutex_lock(&me->shared->forks[me->id]);
+		pthread_mutex_lock(&me->shared->forks[me->id]);//ここで長時間スタックしてたら飢餓してから食べることにならない？fork片方持ったらもう片方をまち
 		if (pthread_mutex_lock(&me->shared->forks[rem(me->id + 1, me->shared->number_of_philosophers)]) == 0)
 			break ;
 		pthread_mutex_unlock(&me->shared->forks[me->id]);
@@ -126,7 +129,6 @@ void	*philosopher(void *arg)
 	// printf("[id=%d, start=%lld]\n", me->id, get_current_unixtime_ms() - me->start_eating_time);
 	while (1)
 	{
-
 		if (take_forks(me) < 0)
 		{
 			print_log(get_current_unixtime_ms() - me->shared->start_time, me->id, "has died");fflush(stdout);
