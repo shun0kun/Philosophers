@@ -37,6 +37,7 @@ starvationを完璧に防ぐのは難しいのでできるところまででい�
 ・1 mutex per 1 fork説濃厚。作ろう。　
 ・偶奇グループ分け法厳しいかも。テストケース５に対応できないかも。
 ・ノートに書いてあった、奇数時のdelay制御を実装してみよう。どのみち偶奇分け方式はボツかもしれないが。
+・一般に哲学者が奇数人のときの方が資源分配が難しくなるのか。
 
 # TEST CASE
 ・Do not test with more than 200 philosophers.
@@ -45,6 +46,6 @@ starvationを完璧に防ぐのは難しいのでできるところまででい�
 2. 5 800 200 200 				-> No one should die.
 3. 5 800 200 200 7 				-> No one should die and the sumilation should stop when every philosopher has eaten at least 7 times.
 4. 4 410 200 200 				-> No one should die.
-5. 4 310 200 100 				-> One philosopher should die.
+5. 4 310 200 100 				-> One philosopher should die. →一人だけ飢餓するので済ませるの論理的に不可能じゃない？他の資源配分法で可能なの？
 6. 2 * * * * 					-> a death delayed by more than 10 ms is unacceptable.
 7. * * * * * 					-> philosophers should die at the right time, that they don't steal forks, and so forth.
