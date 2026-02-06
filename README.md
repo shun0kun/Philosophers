@@ -11,6 +11,8 @@
 10. 4 310 200 100 → このときに、哲学者1人だけが飢餓して、残りは生き続ける資源配分アルゴリズムを考える。
 11. 方法1、方法2とは異なる資源配分アルゴリズムも考える。最適化も考える。もっと効率よく配布できるがあるのかもしれない。
 12. 飢餓するにしても、最小限の飢餓で済ませられるようなアルゴリズムも考える。
+13. 誰かが飢餓した瞬間simulationを終了する設計にする。最後のログが"*died"でありかつそれまでのログに"*died"が1つのみ存在するようにする。
+14. 依然として、「哲学者フォーク分配法1」及び「哲学者フォーク分配法2」以外の方法も考えてみる。最適な方法も考える。
 
 # MEMO
 forkはmutexであらわすのでは？？
@@ -37,10 +39,13 @@ starvationを完璧に防ぐのは難しいのでできるところまででい�
 ・forkがIDLEかBUSYかしか分からないようになってるけど、誰が所有しているかはわかるようにしておいたほうがいいかな。これについても考えておこう。
 ・時間チェックの境界、=入れるか入れないのか明確にしておく。
 ・./philo 2 1 0 0みたいに値をめっちゃ小さくしたときに飢餓してしまうのは仕方がない？
-・1 mutex per 1 fork説濃厚。作ろう。　
+・1 mutex per 1 fork説濃厚。"you shuold protect each fork's state with a mutex. (in pdf)"
 ・偶奇グループ分け法厳しいかも。テストケース５に対応できないかも。
 ・ノートに書いてあった、奇数時のdelay制御を実装してみよう。どのみち偶奇分け方式はボツかもしれないが。
 ・一般に哲学者が奇数人のときの方が資源分配が難しくなるのか。
+・pdfによると、"The simulation stops when a philosopher dies of starvation." 又 "Philosopher do not know if another philosopher is about to die."とのこと。つまり、誰かが飢餓したことに関しては意思伝達してよくて、その際にsimulationを終了する、つまり、すべてのスレッドをreturnするということ。それなら「哲学者フォーク分配法2」でもテストケース5を満たすことができることになる。というのも、２人飢餓する前にsimulationが終了するから。
+・"within t"は"t]"(tを含む)ということ。"within time_to_die"に食べ始めなかったら飢餓する。
+・時間軸基準での方法と、各自poseによる方法の２つを考察する。後者の場合はデッドロックの恐れはないのか。
 
 # TEST CASE
 ・Do not test with more than 200 philosophers.
@@ -51,4 +56,4 @@ starvationを完璧に防ぐのは難しいのでできるところまででい�
 4. 4 410 200 200 				-> No one should die.
 5. 4 310 200 100 				-> One philosopher should die. →一人だけ飢餓するので済ませるの論理的に不可能じゃない？他の資源配分法で可能なの？
 6. 2 * * * * 					-> a death delayed by more than 10 ms is unacceptable.
-7. * * * * * 					-> philosophers should die at the right time, that they don't steal forks, and so forth.
+7. * * * * * 					-> philosophers should die at the right time(最後の食事からtime_to_die後にちゃんと飢餓しているかどうか), that 	they don't steal forks, and so forth.
