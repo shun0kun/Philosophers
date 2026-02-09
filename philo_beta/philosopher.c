@@ -25,3 +25,4 @@ void	*philosopher(void *arg)
 	}
 	return (NULL);
 }
+//てかこれwhileの中身一つの関数にできるよね。そのまま合体できる。本質的には、ただ長いから分割しているだけになってる。

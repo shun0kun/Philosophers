@@ -14,17 +14,17 @@ int	philo_take_a_fork(t_philo *philo, t_shared *shared, int fork_number)
 	return (-1);
 }
 
-int	philo_put_a_fork(t_fork *fork, int id)
+int	philo_put_a_fork(t_philo *philo, t_shared *shared, int fork_number)
 {
-	pthread_mutex_lock(&fork->mu);
-	if (fork->owner == id) //これは哲学者間で意思伝達していることになる？
+	pthread_mutex_lock(&shared->fork[fork_number].mu);
+	if (shared->fork[fork_number].owner == philo->id) //これは哲学者間で意思伝達していることになる？
 	{
-		fork->owner = -1;
-		fork->state = IDLE;
-		pthread_mutex_unlock(&fork->mu);
+		shared->fork[fork_number].owner = -1;
+		shared->fork[fork_number].state = IDLE;
+		pthread_mutex_unlock(&shared->fork[fork_number].mu);
 		return (0);
 	}
-	pthread_mutex_unlock(&fork->mu);
+	pthread_mutex_unlock(&shared->fork[fork_number].mu);
 	return (-1);
 }
 
