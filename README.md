@@ -13,6 +13,7 @@
 12. 飢餓するにしても、最小限の飢餓で済ませられるようなアルゴリズムも考える。
 13. 誰かが飢餓した瞬間simulationを終了する設計にする。最後のログが"*died"でありかつそれまでのログに"*died"が1つのみ存在するようにする。
 14. 依然として、「哲学者フォーク分配法1」及び「哲学者フォーク分配法2」以外の方法も考えてみる。最適な方法も考える。
+15. 細かい時間制御をチェックする。
 
 # MEMO
 forkはmutexであらわすのでは？？
@@ -44,10 +45,24 @@ starvationを完璧に防ぐのは難しいのでできるところまででい�
 ・ノートに書いてあった、奇数時のdelay制御を実装してみよう。どのみち偶奇分け方式はボツかもしれないが。
 ・一般に哲学者が奇数人のときの方が資源分配が難しくなるのか。
 ・pdfによると、"The simulation stops when a philosopher dies of starvation." 又 "Philosopher do not know if another philosopher is about to die."とのこと。つまり、誰かが飢餓したことに関しては意思伝達してよくて、その際にsimulationを終了する、つまり、すべてのスレッドをreturnするということ。それなら「哲学者フォーク分配法2」でもテストケース5を満たすことができることになる。というのも、２人飢餓する前にsimulationが終了するから。
-・"within t"は"t]"(tを含む)ということ。"within time_to_die"に食べ始めなかったら飢餓する。
+・"within t"は"t]"(tを含む)ということ。"within time_to_die"に食べ始めなかったら飢餓する。なので死亡条件は、"now - start > timetodie"
 ・時間軸基準での方法と、各自poseによる方法の２つを考察する。後者の場合はデッドロックの恐れはないのか。
+・when we read memory we don't have to lock mutex, right?
+・やっぱ1fork1mutexだとデッドロック起こりうるくね。→forkを取る順番を制御すれば回避できるかも。みんな左(右)からフォーク取ろうとするからデッドロックが起こる。奇数番目と偶数番目とでフォークを取る左右の順番を変えればデッドロック原理的に回避できるかも。
+・偶奇でフォークを取る順番左右で分けることでデッドロックを防げる(古典的な方法らしい)。他にも方法がないか考えてみよう。
+・1 mutex for all forksだと実装は楽だけど、並列性がなくなるからよくないらしい。
+・someone_diedチェックしてからactionするまでの微小期間に誰か飢餓するのを防ぐ方法は？これを防がないと最後のlogが"*died"じゃなくなる可能性が生じる。
+・forkの所有者を表すべき？誰が所有しているかはデータ化する必要ない？
+・データとそのデータを守るmutexをペアで1つの構造体にするのどう？
+・forkを置く順番は守る必要があるけど、forkを置く順番はどうでもいい説。こういうの数学的に証明できるようになったほうがいいね。
+・関数の引数はすべてphiloで渡すのでもいいかも。philoで身分証＋情報みたいになるから。
 
-# TEST CASE
+# VERLNERABILITY
+・mutex_lock待ちによる遅延。
+
+# WHAT TO THINK
+
+# TESTCASE
 ・Do not test with more than 200 philosophers.
 ・Do not test with time_to_die or time_to_eat or time_to_sleep set to values lower than 60 ms.
 1. 1 800 200 200 				-> should not eat and should die.

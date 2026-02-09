@@ -31,7 +31,7 @@ int	main(int argc, char **argv)
 	i = 1;
 	while (i <= shared.number_of_philosophers)
 		pthread_mutex_init(&shared.mu_fork[i++], NULL);
-	shared.time_start_simulation = get_current_unixtime();
+	shared.time_simulation_start = get_current_unixtime();
 	i = 1;
 	while (i <= shared.number_of_philosophers)
 	{
