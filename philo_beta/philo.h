@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <stdbool.h>
 #include <sys/time.h>
+#include <stdio.h>
 
 typedef enum e_fork_state
 {
@@ -13,7 +14,7 @@ typedef enum e_fork_state
 
 typedef struct s_fork
 {
-	int				owner;
+	int				owner; //これによって哲学者間で意思伝達していることになりうる？どんな場合に？
 	t_fork_state	state;
 	pthread_mutex_t	mu;
 }	t_fork;
@@ -24,6 +25,8 @@ typedef struct s_death_flag
 	pthread_mutex_t	mu;
 }	t_death_flag;
 
+// 共有データ
+// 更に分類すべきか考える。
 typedef struct s_shared
 {
 	pthread_mutex_t	mu_write;
@@ -38,23 +41,30 @@ typedef struct s_shared
 	bool			option_enabled;
 }	t_shared;
 
+// 個人データ
 typedef struct s_philo
 {
 	int			id;
-	t_shared	*shared;
 	long long	time_last_meal;
 	int			times_i_must_eat;
 }	t_philo;
 
+
+// スレッドに引数を渡す用の構造体
+typedef struct s_thread_args
+{
+	t_philo		*philo;
+	t_shared	*shared;
+}	t_thread_args;
+
 void		*philosopher(void *arg);
 
-int			philo_take_forks(t_philo *philo);
-void		philo_put_forks(t_philo *philo);
-int			philo_eat(t_philo *philo);
-int			philo_sleep(t_philo *philo);		
-int			philo_think(t_philo *philo);	
+int			philo_take_forks(t_philo *philo, t_shared *shared);
+int			philo_eat(t_philo *philo, t_shared *shared);
+int			philo_sleep(t_philo *philo, t_shared *shared);		
+int			philo_think(t_philo *philo, t_shared *shared);	
 
-int			pause_until(t_philo *philo, long long time);
+int			pause_until(t_philo *philo, t_shared *shared, long long time);
 
 long long	current_unixtime_ms(void);
 long long	timestamp(long long time_simulation_start);

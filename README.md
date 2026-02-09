@@ -56,13 +56,19 @@ starvationを完璧に防ぐのは難しいのでできるところまででい�
 ・データとそのデータを守るmutexをペアで1つの構造体にするのどう？
 ・forkを置く順番は守る必要があるけど、forkを置く順番はどうでもいい説。こういうの数学的に証明できるようになったほうがいいね。
 ・関数の引数はすべてphiloで渡すのでもいいかも。philoで身分証＋情報みたいになるから。
+・pthread_createで、配布専用の構造体を作る案。
+・主語がphilosopherである関数は、その名前の先頭が"philo_"であるようにする案。
+・wait_untill, pause_untilとかじゃなくて、think_untilが名前としてふさわしいのでは？その場合simulationの冒頭に一瞬のthinking timeが入ってログの見た目が少し気持ち悪いから、改善案を考えておく。あと、この場合think_untilって言ってるくせに、その後もfork掴めなかったから考え続けることになるという状況も起こるので気持ち悪い。哲学者が可能な状態は、食べる、寝る、考えるだけで、フォークを取ろうと奮闘する状態はない。いや、もしかしたらあるのかもしれない。哲学者問題の原典に立ち戻って調査してみよう。それベースに設計がきれいになるならおおいにアリ。
 
 # VERLNERABILITY
 ・mutex_lock待ちによる遅延。
 
 # WHAT TO THINK
+・forkを置く順番は任意でいいか。その証明もできたら。
+・飢餓チェックを逐次方式しているが、そのほかの方法はあるか考える。
+・t_sharedは定数、mutexみたいに更に分類するべきか考える。分類するなら、何を基準に分類するのが設計として優れているか考察する。
 
-# TESTCASE
+# TEST CASE
 ・Do not test with more than 200 philosophers.
 ・Do not test with time_to_die or time_to_eat or time_to_sleep set to values lower than 60 ms.
 1. 1 800 200 200 				-> should not eat and should die.

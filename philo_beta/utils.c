@@ -27,9 +27,9 @@ bool	someone_has_died(t_death_flag *death_flag)
 	return (false);
 }
 
-bool	im_dead(t_philo *philo)
+bool	im_dead(t_philo *philo, t_shared *shared)
 {
-	return (current_unixtime_ms() - philo->shared->time_simulation_start > philo->shared->duration_die);
+	return (current_unixtime_ms() - philo->time_last_meal > shared->duration_die);
 }
 
 int	rem(int a, int b)
