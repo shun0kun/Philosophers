@@ -1,20 +1,21 @@
 #include "philo.h"
 
-int	philo_take_a_fork(t_philo *philo, t_shared *shared, int fork_number)
+int	take_a_fork(t_philo *philo, t_shared *shared, int fork_number)
 {
 	pthread_mutex_lock(&shared->fork[fork_number].mu);
 	if (shared->fork[fork_number].state == IDLE)
 	{
 		shared->fork[fork_number].owner = philo->id;
 		shared->fork[fork_number].state = BUSY;
-		print_log(timestamp(shared->time_simulation_start), philo->id, "has taken a fork", &shared->mu_write);
+		// print_log(time_stamp(shared->time_simulation_start), philo->id, "has taken a fork", &shared->mu_write);
+		pthread_mutex_unlock(&shared->fork[fork_number].mu);
 		return (0);
 	}
 	pthread_mutex_unlock(&shared->fork[fork_number].mu);
 	return (-1);
 }
 
-int	philo_put_a_fork(t_philo *philo, t_shared *shared, int fork_number)
+int	put_a_fork(t_philo *philo, t_shared *shared, int fork_number)
 {
 	pthread_mutex_lock(&shared->fork[fork_number].mu);
 	if (shared->fork[fork_number].owner == philo->id) //これは哲学者間で意思伝達していることになる？
@@ -35,34 +36,34 @@ int		philo_take_forks(t_philo *philo, t_shared *shared)
 	int	left;
 	int	right;
 
-	left = philo->id;
-	right = rem(philo->id + 1, shared->number_of_philosophers);
+	left = philo->id - 1;
+	right = rem(philo->id, shared->number_of_philosophers);
 	while (1)
 	{
 		if (someone_has_died(&shared->death_flag))
 			return (-1);
-		if (im_dead(philo))
+		if (im_dead(philo, shared))
 		{
 			death_flag_on(&shared->death_flag);
-			print_log(timestamp(shared->time_simulation_start), philo->id, "died", &shared->mu_write);
+			print_log(time_stamp(shared->time_simulation_start), philo->id, "died", &shared->mu_write);
 			return (-1);
 		}
 		if (philo->id % 2 == 0)
 		{
-			if (take_a_fork(&shared->fork[left], philo->id) < 0 || take_a_fork(&shared->fork[right], philo->id) < 0)
+			if (take_a_fork(philo, shared, left) < 0 || take_a_fork(philo, shared, right) < 0)
 			{
-				put_a_fork(&shared->fork[left], philo->id);
-				put_a_fork(&shared->fork[right], philo->id);
+				put_a_fork(philo, shared, left);
+				put_a_fork(philo, shared, right);
 				continue ;
 			}
 			return (0);
 		}
 		else
 		{
-			if (take_a_fork(&shared->fork[right], philo->id) < 0 || take_a_fork(&shared->fork[left], philo->id) < 0)
+			if (take_a_fork(philo, shared, right) < 0 || take_a_fork(philo, shared, left) < 0)
 			{
-				put_a_fork(&shared->fork[right], philo->id);
-				put_a_fork(&shared->fork[left], philo->id);
+				put_a_fork(philo, shared, right);
+				put_a_fork(philo, shared, left);
 				continue ;
 			}
 			return (0);
@@ -73,7 +74,7 @@ int		philo_take_forks(t_philo *philo, t_shared *shared)
 int		philo_eat(t_philo *philo, t_shared *shared)
 {
 	philo->time_last_meal = current_unixtime_ms();
-	print_log(timestamp(shared->time_simulation_start), philo->id, "is eating", &shared->mu_write);
+	print_log(time_stamp(shared->time_simulation_start), philo->id, "is eating", &shared->mu_write);
 	while (current_unixtime_ms() - philo->time_last_meal <= shared->duration_eat)
 	{
 		if (someone_has_died(&shared->death_flag))
@@ -81,12 +82,12 @@ int		philo_eat(t_philo *philo, t_shared *shared)
 		if (current_unixtime_ms() - philo->time_last_meal > shared->duration_die)
 		{
 			death_flag_on(&shared->death_flag);
-			print_log(timestamp(shared->time_simulation_start), philo->id, "died", &shared->mu_write);
+			print_log(time_stamp(shared->time_simulation_start), philo->id, "died", &shared->mu_write);
 			return (-1);
 		}
 	}
-	put_a_fork(&shared->fork[philo->id], philo->id);
-	put_a_fork(&shared->fork[rem(philo->id + 1, shared->number_of_philosophers)], philo->id);
+	put_a_fork(philo, shared, philo->id - 1);
+	put_a_fork(philo, shared, rem(philo->id, shared->number_of_philosophers));
 	if (shared->option_enabled)
 	{
 		philo->times_i_must_eat--;
@@ -106,7 +107,7 @@ int		philo_sleep(t_philo *philo, t_shared *shared)
 	{
 		if (someone_has_died(&shared->death_flag))
 			return (-1);
-		if (im_dead(philo))
+		if (im_dead(philo, shared))
 		{
 			death_flag_on(&shared->death_flag);
 			print_log(time_stamp(shared->time_simulation_start), philo->id, "died", &shared->mu_write);
@@ -121,7 +122,7 @@ int		philo_think(t_philo *philo, t_shared *shared)
 {
 	if (someone_has_died(&shared->death_flag))
 		return (-1);
-	if (im_dead(philo))
+	if (im_dead(philo, shared))
 	{
 		death_flag_on(&shared->death_flag);
 		print_log(time_stamp(shared->time_simulation_start), philo->id, "died", &shared->mu_write);

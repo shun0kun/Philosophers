@@ -1,11 +1,14 @@
 #include "philo.h"
 
 // Memo: Should I lock mutex here ?
-void	print_log(long long time, int id, const char *msg, pthread_mutex_t *mu)
+void	print_log(t_philo *philo, t_shared *shared, const char *msg)
 {
-	pthread_mutex_lock(mu);
-	printf("%lld\t%d\t%s\n", time, id, msg);
-	pthread_mutex_unlock(mu);
+	pthread_mutex_lock(&shared->mu_write);
+	pthread_mutex_lock(&shared->death_flag.mu);
+	if (shared->death_flag.flag == false)
+		printf("%lld\t%d\t%s\n", time_stamp(shared->time_simulation_start), philo->id, msg);
+	pthread_mutex_unlock(&shared->death_flag.mu);
+	pthread_mutex_unlock(&shared->mu_write);
 }
 
 void	death_flag_on(t_death_flag *death_flag)
@@ -46,4 +49,27 @@ int	rem(int a, int b)
 			return (a - b * (a / b - 1));
 	}
 	return (a % b);
+}
+
+int	ft_atoi(const char *nptr)
+{
+	int	sign;
+	int	nb;
+
+	sign = 1;
+	nb = 0;
+	while (*nptr == ' ' || ((*nptr >= 9) && (*nptr <= 13)))
+		nptr++;
+	if (*nptr == '+' || *nptr == '-')
+	{
+		if (*nptr == '-')
+			sign = -1;
+		nptr++;
+	}
+	while (*nptr >= '0' && *nptr <= '9')
+	{
+		nb = nb * 10 + (*nptr - '0');
+		nptr++;
+	}
+	return (nb * sign);
 }

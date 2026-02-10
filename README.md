@@ -59,6 +59,13 @@ starvationを完璧に防ぐのは難しいのでできるところまででい�
 ・pthread_createで、配布専用の構造体を作る案。
 ・主語がphilosopherである関数は、その名前の先頭が"philo_"であるようにする案。
 ・wait_untill, pause_untilとかじゃなくて、think_untilが名前としてふさわしいのでは？その場合simulationの冒頭に一瞬のthinking timeが入ってログの見た目が少し気持ち悪いから、改善案を考えておく。あと、この場合think_untilって言ってるくせに、その後もfork掴めなかったから考え続けることになるという状況も起こるので気持ち悪い。哲学者が可能な状態は、食べる、寝る、考えるだけで、フォークを取ろうと奮闘する状態はない。いや、もしかしたらあるのかもしれない。哲学者問題の原典に立ち戻って調査してみよう。それベースに設計がきれいになるならおおいにアリ。
+・設計を一段階レベルアップするならconfig構造体、parse、validate作ってもいい。
+main
+ ├── parse_args(argc, argv, &config)
+ ├── validate_config(&config)
+ ├── shared = create_shared(&config)
+ ├── philos = create_philos(shared)
+・
 
 # VERLNERABILITY
 ・mutex_lock待ちによる遅延。

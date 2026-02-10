@@ -22,7 +22,7 @@ int	philo_pause_until(t_philo *philo, t_shared *shared, long long time)
 	{
 		if (someone_has_died(&shared->death_flag))
 			return (-1);
-		if (im_dead(philo))
+		if (im_dead(philo, shared))
 		{
 			death_flag_on(&shared->death_flag);
 			print_log(time_stamp(shared->time_simulation_start), philo->id, "died", &shared->mu_write);

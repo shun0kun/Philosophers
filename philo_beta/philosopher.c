@@ -12,7 +12,7 @@ void	*philosopher(void *arg)
 	me->time_last_meal = current_unixtime_ms();
 	while (1)
 	{
-		if (philo_pause_until(me, philo_resume_time(me, shared, cycle++)) < 0)
+		if (philo_pause_until(me, shared, philo_resume_time(me, shared, cycle++)) < 0)
 			break ;
 		if (philo_take_forks(me, shared) < 0)
 			break ;

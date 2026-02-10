@@ -5,6 +5,17 @@
 #include <stdbool.h>
 #include <sys/time.h>
 #include <stdio.h>
+#include <stdlib.h>
+
+typedef struct s_config
+{
+	int			number_of_philosophers;
+	long long	time_to_die;
+	long long	time_to_eat;
+	long long	time_to_sleep;
+	int			number_of_times_each_philosopher_must_eat;
+	bool		option_enabled;
+}	t_config;
 
 typedef enum e_fork_state
 {
@@ -29,11 +40,10 @@ typedef struct s_death_flag
 // 更に分類すべきか考える。
 typedef struct s_shared
 {
-	pthread_mutex_t	mu_write;
 	t_fork			*fork;
 	t_death_flag	death_flag;
+	pthread_mutex_t	mu_write;
 	long long		time_simulation_start;
-	bool			someone_died;
 	int				number_of_philosophers;
 	long long		duration_die;
 	long long		duration_eat;
@@ -64,14 +74,17 @@ int			philo_eat(t_philo *philo, t_shared *shared);
 int			philo_sleep(t_philo *philo, t_shared *shared);		
 int			philo_think(t_philo *philo, t_shared *shared);	
 
-int			pause_until(t_philo *philo, t_shared *shared, long long time);
+int			philo_pause_until(t_philo *philo, t_shared *shared, long long time);
+long long	philo_resume_time(t_philo *philo, t_shared *shared, int cycle);
 
 long long	current_unixtime_ms(void);
-long long	timestamp(long long time_simulation_start);
+long long	time_stamp(long long time_simulation_start);
 
-void		print_log(long long time, int fd, const char *msg, pthread_mutex_t *mu_write);
+void		print_log(t_philo *philo, t_shared *shared, const char *msg);
 bool		someone_has_died(t_death_flag *death_flag);
 void		death_flag_on(t_death_flag *death_flag);
-bool		im_dead(t_philo *philo);
+bool		im_dead(t_philo *philo, t_shared *shared);
+int			rem(int a, int b);
+int			ft_atoi(const char *nptr);
 
 #endif
