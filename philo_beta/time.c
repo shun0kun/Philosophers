@@ -24,8 +24,7 @@ int	philo_pause_until(t_philo *philo, t_shared *shared, long long time)
 			return (-1);
 		if (im_dead(philo, shared))
 		{
-			death_flag_on(&shared->death_flag);
-			print_log(time_stamp(shared->time_simulation_start), philo->id, "died", &shared->mu_write);
+			print_log_died(philo, shared);
 			return (-1);
 		}
 	}

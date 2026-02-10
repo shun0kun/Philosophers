@@ -4,10 +4,21 @@
 void	print_log(t_philo *philo, t_shared *shared, const char *msg)
 {
 	pthread_mutex_lock(&shared->mu_write);
-	pthread_mutex_lock(&shared->death_flag.mu);
 	if (shared->death_flag.flag == false)
 		printf("%lld\t%d\t%s\n", time_stamp(shared->time_simulation_start), philo->id, msg);
-	pthread_mutex_unlock(&shared->death_flag.mu);
+	pthread_mutex_unlock(&shared->mu_write);
+}
+
+void	print_log_died(t_philo *philo, t_shared *shared)
+{
+	pthread_mutex_lock(&shared->mu_write);
+	pthread_mutex_lock(&shared->death_flag.mu);
+	if (shared->death_flag.flag == false)
+	{
+		printf("%lld\t%d\t%s\n", time_stamp(shared->time_simulation_start), philo->id, "died");
+		shared->death_flag.flag = true;
+	}
+	pthread_mutex_unlock(&shared->death_flag.mu);	
 	pthread_mutex_unlock(&shared->mu_write);
 }
 

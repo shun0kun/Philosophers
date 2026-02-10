@@ -81,6 +81,7 @@ long long	current_unixtime_ms(void);
 long long	time_stamp(long long time_simulation_start);
 
 void		print_log(t_philo *philo, t_shared *shared, const char *msg);
+void		print_log_died(t_philo *philo, t_shared *shared);
 bool		someone_has_died(t_death_flag *death_flag);
 void		death_flag_on(t_death_flag *death_flag);
 bool		im_dead(t_philo *philo, t_shared *shared);
