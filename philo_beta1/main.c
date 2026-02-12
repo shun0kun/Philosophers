@@ -154,7 +154,7 @@ int	main(int argc, char **argv)
 	if (!args)
 	{
 		destroy_philos(philo);
-		destroy_shared(shared);		
+		destroy_shared(shared);
 		return (1);
 	}
 	stop_simulation(thread, shared, args);
@@ -163,3 +163,4 @@ int	main(int argc, char **argv)
 	return (0);
 }
 //このthread_argsをどうにかしよう。
+//simulationをひとつの関数にする。
