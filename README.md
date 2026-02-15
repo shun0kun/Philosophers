@@ -91,3 +91,6 @@ main
 5. 4 310 200 100 				-> One philosopher should die. →一人だけ飢餓するので済ませるの論理的に不可能じゃない？他の資源配分法で可能なの？
 6. 2 * * * * 					-> a death delayed by more than 10 ms is unacceptable.
 7. * * * * * 					-> philosophers should die at the right time(最後の食事からtime_to_die後にちゃんと飢餓しているかどうか), that 	they don't steal forks, and so forth.
+
+# 危険箇所
+・./philo * 0 * * →最初がdiedじゃない。

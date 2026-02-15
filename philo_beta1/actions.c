@@ -7,7 +7,6 @@ int	take_a_fork(t_philo *philo, t_shared *shared, int fork_number)
 	{
 		shared->fork[fork_number].owner = philo->id;
 		shared->fork[fork_number].state = BUSY;
-		// print_log(time_stamp(philo, shared, "has taken a fork", &shared->mu_write);
 		pthread_mutex_unlock(&shared->fork[fork_number].mu);
 		return (0);
 	}
@@ -73,12 +72,19 @@ int		philo_take_forks(t_philo *philo, t_shared *shared)
 int		philo_eat(t_philo *philo, t_shared *shared)
 {
 	philo->time_last_meal = current_unixtime_ms();
+	if (someone_has_died(&shared->death_flag))
+		return (-1);
+	if (current_unixtime_ms() - philo->time_last_meal > shared->duration_die)
+	{
+		print_log_died(philo, shared);
+		return (-1);
+	}
 	print_log(philo, shared, "is eating");
 	while (current_unixtime_ms() - philo->time_last_meal <= shared->duration_eat)
 	{
 		if (someone_has_died(&shared->death_flag))
 			return (-1);
-		if (current_unixtime_ms() - philo->time_last_meal > shared->duration_die)
+		if (current_unixtime_ms() - philo->time_last_meal >= shared->duration_die)
 		{
 			print_log_died(philo, shared);
 			return (-1);
