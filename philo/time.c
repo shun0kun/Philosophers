@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 16:20:42 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/16 09:40:21 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/16 13:24:28 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ int	wait_for(t_shared *shared, long long dur)
 	long long	now;
 	long long	remaining;
 
-	(void)shared;
 	target = current_unixtime_ms() + dur;
 	while (1)
 	{
