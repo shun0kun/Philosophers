@@ -1,19 +1,26 @@
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
-SRCS =
+DIR_SRCS = srcs/
+DIR_OBJS = objs/
+SRCS = actions.c main.c philosopher.c semaphore.c simulation.c time.c utils.c 
 OBJS = $(SRCS:.c=.o)
+SRCS_PATH = $(addprefix $(DIR_SRCS), $(SRCS))
+OBJS_PATH = $(addprefix $(DIR_OBJS), $(OBJS))
 NAME = philo
 
 all: $(NAME)
 
-$(NAME): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(NAME)
+$(NAME): $(OBJS_PATH)
+	$(CC) $(CFLAGS) $(OBJS_PATH) -o $(NAME)
 
-%.o: %.c
+$(DIR_OBJS)%.o: $(DIR_SRCS)%.c | $(DIR_OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(DIR_OBJS):
+	mkdir -p $(DIR_OBJS)
+
 clean:
-	rm -f $(OBJS)
+	rm -rf $(DIR_OBJS)
 
 fclean: clean
 	rm -f $(NAME)
