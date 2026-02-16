@@ -5,6 +5,7 @@ bool	is_num_char(const char c)
 	return (c >= '0' && c <= '9');
 }
 
+// 空文字も弾く！！！！！
 bool	is_int_str(const char *s)
 {
 	int	i;
