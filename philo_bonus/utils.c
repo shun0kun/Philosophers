@@ -32,7 +32,7 @@ int	ft_atoi(const char *s)
 	return (nb);
 }
 
-void	broadcast_termination(sem_t *stop)
+void	trigger_termination(sem_t *stop)
 {
 	sem_post(stop);
 }

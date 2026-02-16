@@ -46,12 +46,22 @@ int	main(int argc, char **argv)
 	sem.forks = sem_open("/forks", O_CREAT | O_EXCL, 0644, cfg.num_philos);
 	if (sem.forks == SEM_FAILED)
 		return (1);
+	sem_unlink("/gate");
+	sem.gate = sem_open("/gate", O_CREAT | O_EXCL, 0644, cfg.num_philos / 2);
+	if (sem.gate == SEM_FAILED)
+	{
+		sem_close(sem.forks);
+		sem_unlink("/forks");
+		return (1);
+	}
 	sem_unlink("/write_lock");
 	sem.write_lock = sem_open("/write_lock", O_CREAT | O_EXCL, 0644, 1);
 	if (sem.write_lock == SEM_FAILED)
 	{
 		sem_close(sem.forks);
 		sem_unlink("/forks");
+		sem_close(sem.gate);
+		sem_unlink("/gate");
 		return (1);
 	}
 	sem_unlink("/stop");
@@ -60,10 +70,13 @@ int	main(int argc, char **argv)
 	{
 		sem_close(sem.forks);
 		sem_unlink("/forks");
+		sem_close(sem.gate);
+		sem_unlink("/gate");
 		sem_close(sem.write_lock);
 		sem_unlink("/write_lock");
 		return (1);
 	}
+	//init meal sems here.
 
 	// simulation
 	simulation(&cfg, &sem);

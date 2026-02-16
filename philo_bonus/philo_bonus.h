@@ -23,9 +23,19 @@ typedef struct s_config
 typedef struct s_sem
 {
 	sem_t	*forks;
+	sem_t	*gate;
 	sem_t	*write_lock;
+	sem_t	*meal;
 	sem_t	*stop;
 }	t_sem;
 
+typedef struct s_monitor
+{
+	int			id;
+	long long	start_time;
+	long long	*last_meal_time;
+	t_config	*cfg;
+	t_sem		*sem;
+}	t_monitor;
 
 #endif

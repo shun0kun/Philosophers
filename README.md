@@ -1,114 +1,71 @@
-# TODO
-1. 各スレッドにそれらを区別する番号をつける。
-2. デッドロックが起こる条件、起こらない条件を理解する。
-3. プログラム開始からの経過時間[ms]を表す。
-4. 資源(fork)のデータ形態。
-5. 自分の飢餓チェック、全員の飢餓チェック。
-6. 資源分配のアルゴリズム。
-7. 飢餓チェックしながら待つ独自のsleep関数を作る。
-8. 哲学者１人のときデッドロックしてるから直す。
-9. 哲学者奇数人のとき餓死してるから、資源配分アルゴリズムを見直す。
-10. 4 310 200 100 → このときに、哲学者1人だけが飢餓して、残りは生き続ける資源配分アルゴリズムを考える。
-11. 方法1、方法2とは異なる資源配分アルゴリズムも考える。最適化も考える。もっと効率よく配布できるがあるのかもしれない。
-12. 飢餓するにしても、最小限の飢餓で済ませられるようなアルゴリズムも考える。
-13. 誰かが飢餓した瞬間simulationを終了する設計にする。最後のログが"*died"でありかつそれまでのログに"*died"が1つのみ存在するようにする。
-14. 依然として、「哲学者フォーク分配法1」及び「哲学者フォーク分配法2」以外の方法も考えてみる。最適な方法も考える。
-15. 細かい時間制御をチェックする。
-16. 監視モニター方式で実装してみる。mutex=forkにすることで、哲学者がたくさんいる場合においてもCPU効率がいいような実装にする。俊介法を導入する。ただし計画的周期スケジューリングにするというよりかは、奇数かつtime_to_sleep <= time_to_eatのときに食べたあとにsleepするみたいな感じが良い。
-17. 計画的周期スケジューリングから適応的位相安定スケジューリング法にアップグレードする。
+*This project has been created as part of the 42 curriculum by sshimots.*
 
-# MEMO
-forkはmutexであらわすのでは？？
-forkの数だけmutexを用意するのかもしれない。
-mutexひとつだけで、forkを他のデータで表すことで実装することはできないかな。これも別解として考えてみよう。
-ft_atoi使うけどlibft使えないから自作する。
-starvationを完璧に防ぐのは難しいのでできるところまででいいが、デッドロックは絶対に起こらないようにしよう。
-・turn制でやる方法。偶数人のときは、偶数ターン＆奇数ターン、奇数人のときは、代表者ターン＆Aターン＆Bターン。ターンの回る順番を保証することが大事。そうでないと、eat大sleep小のときなどに、ターンの順番が逆転してしばらく食事できない人が出てきてstavationの原因となる。
-・誰かが飢餓してもみんなに知らせる必要ないし、みんな終了する必要もない。飢餓した哲学者がいたら、死亡ログを出してそのスレッドだけ終了すればOK。
-・pdfを見た感じ、forkはmutexで表す以外の方法もあるのかもしれない。その方法も今度考えてみよう。
-・デッドロックの原因特定の方法について考える。
-・デッドロックに関する理論を学んで、デッドロックが生じないような設計を学び、デッドロックの原因を特定できるようになる。
-・./philo 2 1000 500 510 10で飢餓するはずなのにしない。
-・//take_forks関数fork持てないとき、待ち続けるから飢餓しても待ち続けて食べて生き延びてしまう。戻り値も帰ってこないらしい。飢餓チェックする方法を考えよう。デッドロック防げなくね？
-・mutex１個方式でも作ってみるか。mutexでforkを表す方式だと、フォークおいたあとのlogとかがスレッドセーフでない設計になる。それに対処するためにさらにmutexが必要となる。
-・./philo 10 1000 500 500 5みたいなぎりぎりの際どいケースで飢餓してしまう。
-・今は最初だけ少し調節してあとは早いものがちで食べる方式になってるから、ちゃんと終始順番にみんな食べれるように列に並んでもらうようにしよう。そうじゃないと誰かずっと食べれないひとが出てくる。でもそれって互いに意思伝達してるってことになる運命にあるのかもしれない。そうなれば仕様違反だからできない。
-・t_fork_stateもmutexも両方number_of_philosophers分用意して、1forkに1mutexを守らせる方式でもいいのかもしれない。mutexってもっと気軽にたくさん作ってつかっていいやつなのかね。それを判断する基準は？計算量？メモリ消費量？設計？
-・writeにかかる時間ってどれくらい？
-・write用のutex、fork用のmutexみたいに分けるのはどう？共用しすぎると、渋滞しない？
-・whileループでCPU酷使しまくる問題について考える。usleep入れるのがいいのか。どれくらい改善されるのか。精度に問題を及ぼさないのか。
-・mutex1個だけだと哲学者の数が増えたときに鍵待ちによる遅延の影響が大きくなりそう。哲学者が10000とか大きい値のときも通用する設計なのか。よく考えてみるのがいい。mutexは必要な分だけ惜しみなく使うのが優れた設計のために必要なのかもしれない。各forkのために1つずつmutex、print用に1つmutex。
-・forkをutex自身で表してしまうかどうかはよく考えておこう。何が問題なのか。逆に嬉しいことは何なのか。
-・forkがIDLEかBUSYかしか分からないようになってるけど、誰が所有しているかはわかるようにしておいたほうがいいかな。これについても考えておこう。
-・時間チェックの境界、=入れるか入れないのか明確にしておく。
-・./philo 2 1 0 0みたいに値をめっちゃ小さくしたときに飢餓してしまうのは仕方がない？
-・1 mutex per 1 fork説濃厚。"you shuold protect each fork's state with a mutex. (in pdf)"
-・偶奇グループ分け法厳しいかも。テストケース５に対応できないかも。
-・ノートに書いてあった、奇数時のdelay制御を実装してみよう。どのみち偶奇分け方式はボツかもしれないが。
-・一般に哲学者が奇数人のときの方が資源分配が難しくなるのか。
-・pdfによると、"The simulation stops when a philosopher dies of starvation." 又 "Philosopher do not know if another philosopher is about to die."とのこと。つまり、誰かが飢餓したことに関しては意思伝達してよくて、その際にsimulationを終了する、つまり、すべてのスレッドをreturnするということ。それなら「哲学者フォーク分配法2」でもテストケース5を満たすことができることになる。というのも、２人飢餓する前にsimulationが終了するから。
-・"within t"は"t]"(tを含む)ということ。"within time_to_die"に食べ始めなかったら飢餓する。なので死亡条件は、"now - start > timetodie"
-・時間軸基準での方法と、各自poseによる方法の２つを考察する。後者の場合はデッドロックの恐れはないのか。
-・when we read memory we don't have to lock mutex, right?
-・やっぱ1fork1mutexだとデッドロック起こりうるくね。→forkを取る順番を制御すれば回避できるかも。みんな左(右)からフォーク取ろうとするからデッドロックが起こる。奇数番目と偶数番目とでフォークを取る左右の順番を変えればデッドロック原理的に回避できるかも。
-・偶奇でフォークを取る順番左右で分けることでデッドロックを防げる(古典的な方法らしい)。他にも方法がないか考えてみよう。
-・1 mutex for all forksだと実装は楽だけど、並列性がなくなるからよくないらしい。
-・someone_diedチェックしてからactionするまでの微小期間に誰か飢餓するのを防ぐ方法は？これを防がないと最後のlogが"*died"じゃなくなる可能性が生じる。
-・forkの所有者を表すべき？誰が所有しているかはデータ化する必要ない？
-・データとそのデータを守るmutexをペアで1つの構造体にするのどう？
-・forkを置く順番は守る必要があるけど、forkを置く順番はどうでもいい説。こういうの数学的に証明できるようになったほうがいいね。
-・関数の引数はすべてphiloで渡すのでもいいかも。philoで身分証＋情報みたいになるから。
-・pthread_createで、配布専用の構造体を作る案。
-・主語がphilosopherである関数は、その名前の先頭が"philo_"であるようにする案。
-・wait_untill, pause_untilとかじゃなくて、think_untilが名前としてふさわしいのでは？その場合simulationの冒頭に一瞬のthinking timeが入ってログの見た目が少し気持ち悪いから、改善案を考えておく。あと、この場合think_untilって言ってるくせに、その後もfork掴めなかったから考え続けることになるという状況も起こるので気持ち悪い。哲学者が可能な状態は、食べる、寝る、考えるだけで、フォークを取ろうと奮闘する状態はない。いや、もしかしたらあるのかもしれない。哲学者問題の原典に立ち戻って調査してみよう。それベースに設計がきれいになるならおおいにアリ。
-・設計を一段階レベルアップするならconfig構造体、parse、validate作ってもいい。
-main
- ├── parse_args(argc, argv, &config)
- ├── validate_config(&config)
- ├── shared = create_shared(&config)
- ├── philos = create_philos(shared)
-・監視スレッド方式or自己監視でfork_state持ってCPU燃やす方式(→usleep(200)をいれるだけでCPU稼働率を99%位削減できる)。計画的周期スケジューリング法(別名：俊介法(shunsuke method))はどっちでやってもできる。
-・fork=mutex方式においては、デッドロックを論理的に不可能にする方法として、偶奇でforkを取る左右順番を分ける方法、seat上限方法、とがある。
-・計画的周期スケジューリングでやるにせよ、最小限のsleepでやるにせよ、「2or3グループが順番通り食べる＆＆誰も食べていない時間を極力0にする」(条件1)ことが目的の本質。そして、この目的を満たすために計画的周期スケジューリングで行っていることの本質は、2or3グループ間の「ズレ」が条件１を満たすようにすることである。しかし、simulationが進むと、誤差が積み重なってグループ間のズレが小さくなってくる可能性があり、ここが資源最適配布の脆弱性。この脆弱性を解消するために、定期的にズレの大きさを検知して、このズレの大きさが条件１を満たすように補正する機構を実装することが有効。依然として、理論的に最適な資源配布を実現することはほぼ不可能かもしれないが、この機構があることによって、ある一定以上の猶予があるsimulation条件における長期的な一定以上の質の資源配布効率を保証することができるようになる。→計画的周期スケジューリングがフィードフォアワード制御出会ったのに対し、この機能を付け加えることでフィードバック制御となる。
-・監視スレッド方式の場合、usleepで気長にまったり、mutex_lockで詰まってても大丈夫になる。監視スレッドが代わりに飢餓判定してくれるから。
-・flagとかはatomic使っても良いかも。許されているなら。
-- 終了フラグが立ったログが最後のログにするためには、そのログを守るmutex/semaphoreの中でflag立てて、全てのログはmutex/semaphoreで守って中で終了フラグ立ってないかチェックするようにすればOK。
+# Philosophers
 
-# VERLNERABILITY
-・mutex_lock待ちによる遅延。
+## Description
 
-# WHAT TO THINK
-・forkを置く順番は任意でいいか。その証明もできたら。
-・飢餓チェックを逐次方式しているが、そのほかの方法はあるか考える。
-・t_sharedは定数、mutexみたいに更に分類するべきか考える。分類するなら、何を基準に分類するのが設計として優れているか考察する。
+This project is an implementation of the **Dining Philosophers Problem**, a classic problem in concurrent algorithm design used to illustrate synchronization issues such as deadlock and starvation.
 
-# TEST CASE
-・Do not test with more than 200 philosophers.
-・Do not test with time_to_die or time_to_eat or time_to_sleep set to values lower than 60 ms.
-1. 1 800 200 200 				-> should not eat and should die.
-2. 5 800 200 200 				-> No one should die.
-3. 5 800 200 200 7 				-> No one should die and the sumilation should stop when every philosopher has eaten at least 7 times.
-4. 4 410 200 200 				-> No one should die.
-5. 4 310 200 100 				-> One philosopher should die. →一人だけ飢餓するので済ませるの論理的に不可能じゃない？他の資源配分法で可能なの？
-6. 2 * * * * 					-> a death delayed by more than 10 ms is unacceptable.
-7. * * * * * 					-> philosophers should die at the right time(最後の食事からtime_to_die後にちゃんと飢餓しているかどうか), that 	they don't steal forks, and so forth.
+In this problem, philosophers sit around a circular table with a bowl of spaghetti in the center. There is one fork between each pair of adjacent philosophers. To eat, a philosopher must pick up both forks (one on each side). After eating, the philosopher puts down the forks and sleeps for a certain amount of time. After sleeping, the philosopher starts thinking and attempts to eat again.
 
-# 危険箇所
-・./philo * 0 * * →最初がdiedじゃない。
-# REVENGE
-- Makefileにて。リンクの時も$(CFLAGS)をつける。
-- 数値以外の文字、哲学者1人未満、その他のパラメータ0未満、INT_MAX超えてる → 最初に弾く。エラーメッセージも入れると印象が良くなる。
-- 入力値に0とかがある時の挙動を一応チェック。デッドロックとか落とされるリスクのある挙動をしないか。
-- デッドロック、データレースが不可能なロジックになっているか再度念入りにチェックする。
-- norminetteチェック!!!
+The simulation continues until:
+- A philosopher dies of starvation, or
+- All philosophers have eaten the required number of times (if specified).
 
-# BONUS
-- 子プロセス、自己監視方式でやる。
-- fork用のsemaphore、write用のsemaphore。
-- 飢餓した時、子プロセスは自分で死亡ログを出してwrite_semを握り続ける。こうすることで、死亡ログが最後のログになる。
-- 飢餓したら、死亡ログ出した後にwrite_sem握りしめながらexit(1)する。親はwaitpidでそれを検知して、他の全ての子プロセスをkill term
-- 子プロセスのメモリリークに注意。exitする前にfree。kill termされる時にメモリリークしないようにした方がいい。
-- みんな食べ終わってから終了する方式にする場合は、full用のsemも使う。
-- semの名前をpidユニークにするのもあり。センスのないレビュアー対策にもなる。
-- stop semaphoreで終了する方式にする。スレッドジョインしないでexitするのはありなの？→大丈夫。exitはプロセスを終了させるもの、returnは関数を終了させるもの。両者は全く別物。
-- なんかmandatoryよりも簡単じゃね？？
+The goal of this project is to manage threads and mutexes efficiently to prevent race conditions and minimize starvation.
+
+## Instructions
+
+### Compilation
+
+- `make` or `make all`
+  Compiles the program and creates the executable `philo`.
+
+- `make clean`
+  Removes object files.
+
+- `make fclean`
+  Removes object files and the executable.
+
+- `make re`
+  Recompiles the program from scratch.
+
+### Execution
+
+```bash
+./philo number_of_philosophers time_to_die time_to_eat time_to_sleep [number_of_times_each_philosopher_must_eat]
+```
+
+- `number_of_philosophers`
+  The number of philosophers (and forks).
+
+- `time_to_die`
+  A philosopher dies if they do not start eating within `time_to_die` milliseconds since the start of their last meal or the start of the simulation.
+
+- `time_to_eat`
+  The time (in milliseconds) it takes for a philosopher to eat. During that time, they must hold two forks.
+
+- `time_to_sleep`
+  The time a philosopher spends sleeping.
+
+- `number_of_times_each_philosopher_must_eat` (optional argument)
+  If all philosophers have eaten at least `number_of_times_each_philosopher_must_eat` times, the simulation stops.
+
+The simulation stops when:
+- A philosopher dies of starvation, or
+- All philosophers have eaten the required number of times (if the optional argument is provided).
+
+## Resources
+
+### References
+
+- [Dining philosophers problem - Wikipedia](https://en.wikipedia.org/wiki/Dining_philosophers_problem)
+
+### Use of AI
+
+- Understanding the Dining Philosophers Problem.
+- Clarifying concepts related to threads and mutexes.
+- Learning how to use the pthread library.
+- Reviewing the program's logic and design.
+- Exploring possible improvements and alternative implementation approaches.
+- Improving the English sentences in this README.
