@@ -65,7 +65,7 @@ void	philosopher(int id, t_config *cfg, t_sem *sem, long long start_time)
 	pthread_detach(thread[1]);
 
 	// routine
-	wait_for(get_time_to_wait_in_the_beginning(id, cfg)); // tunable
+	wait_for(time_to_wait_in_the_beginning(id, cfg)); // tunable
 	eat_count = 0;
 	while (1)
 	{
@@ -119,7 +119,7 @@ void	philosopher(int id, t_config *cfg, t_sem *sem, long long start_time)
 		sem_wait(sem->write_lock);
 		printf("%lld\t%d\t%s\n", current_unixtime_ms() - start_time, id + 1, "is thinking");
 		sem_post(sem->write_lock);
-		wait_for(get_time_to_wait_on_interval(id, cfg)); // tunable
+		wait_for(time_to_wait_on_interval(id, cfg)); // tunable
 	}
 	exit(0);
 }

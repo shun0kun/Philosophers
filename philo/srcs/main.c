@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 16:19:52 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/16 09:52:26 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/17 12:28:52 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,14 @@
 
 int	parse_args(int argc, char **argv, t_config *cfg)
 {
+	int	i;
+
 	if (argc != 5 && argc != 6)
 		return (-1);
+	i = 1;
+	while (i < argc)
+		if (is_int_str(argv[i++]) == false)
+			return (-1);
 	cfg->num_philos = ft_atoi(argv[1]);
 	cfg->time_to_die = ft_atoi(argv[2]);
 	cfg->time_to_eat = ft_atoi(argv[3]);
@@ -25,8 +31,11 @@ int	parse_args(int argc, char **argv, t_config *cfg)
 		cfg->times_to_eat = ft_atoi(argv[5]);
 		cfg->option_enabled = true;
 	}
-	if (cfg->num_philos < 1 || cfg->time_to_die < 0 || cfg->time_to_eat < 0
-		|| cfg->time_to_sleep < 0 || cfg->times_to_eat < 0)
+	else
+		cfg->option_enabled = false;
+	if (cfg->num_philos < 1 || cfg->time_to_die < 0
+		|| cfg->time_to_eat < 0 || cfg->time_to_sleep < 0
+		|| (cfg->option_enabled && cfg->times_to_eat < 0))
 		return (-1);
 	return (0);
 }

@@ -31,7 +31,7 @@ void	wait_for(long long dur)
 	}
 }
 
-long long	get_time_to_wait_in_the_beginning(int id, t_config *cfg)
+long long	time_to_wait_in_the_beginning(int id, t_config *cfg)
 {
 	if (cfg->num_philos % 2 == 0)
 	{
@@ -52,10 +52,12 @@ long long	get_time_to_wait_in_the_beginning(int id, t_config *cfg)
 	return (0);
 }
 
-long long	get_time_to_wait_on_interval(int id, t_config *cfg)
+long long	time_to_wait_on_interval(int id, t_config *cfg)
 {
 	(void)id;
-	if (cfg->num_philos % 2 != 0
+	if (cfg->num_philos % 2 == 0 && cfg->time_to_sleep < cfg->time_to_eat)
+		return (cfg->time_to_eat - cfg->time_to_sleep);
+	else if (cfg->num_philos % 2 != 0
 		&& cfg->time_to_sleep < cfg->time_to_eat * 2)
 		return (cfg->time_to_eat * 2 - cfg->time_to_sleep);
 	else

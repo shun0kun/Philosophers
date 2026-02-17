@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 16:20:32 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/16 08:26:46 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/17 12:25:56 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ void	create_threads(pthread_t *thread, t_shared *shared, t_philo *philo)
 {
 	int	i;
 
-	pthread_create(&thread[shared->cfg.num_philos], NULL, supervisor, shared);
+	pthread_create(&thread[shared->cfg.num_philos], NULL, reaper, shared);
 	i = 0;
 	while (i < shared->cfg.num_philos)
 	{
@@ -55,7 +55,7 @@ int	simulation(t_shared *shared)
 	shared->start_time = current_unixtime_ms();
 	i = 0;
 	while (i < shared->cfg.num_philos)
-		shared->eat_status[i++].last_eat_time = shared->start_time;
+		shared->last_eat_time[i++] = shared->start_time;
 	create_threads(thread, shared, philo);
 	join_threads(thread, shared);
 	free(thread);
