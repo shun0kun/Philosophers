@@ -1,31 +1,5 @@
 #include "philo_bonus.h"
 
-bool	is_num_char(const char c)
-{
-	return (c >= '0' && c <= '9');
-}
-
-// 空文字も弾く！！！！！
-bool	is_int_str(const char *s)
-{
-	int	i;
-
-	if (!s)
-		return (false);
-	i = 0;
-	while (s[i])
-	{
-		if (is_num_char(s[i]) == false)
-			return (false);
-		i++;
-	}
-	if (i == 10)
-	{
-
-	}
-	return (true);
-}
-
 int	ft_atoi(const char *s)
 {
 	int	sign;
@@ -48,6 +22,59 @@ int	ft_atoi(const char *s)
 	}
 	return (nb * sign);
 }
+
+bool	is_num_char(const char c)
+{
+	return (c >= '0' && c <= '9');
+}
+
+bool	safe(const char *s, int is_neg)
+{
+	static char	*int_limit[] = {"2147483647", "2147483648"};
+	int			i;
+	char		diff;
+
+	i = 0;
+	while (int_limit[is_neg][i])
+	{
+		diff = s[i] - int_limit[is_neg][i];
+		if (diff < 0)
+			return (true);
+		if (diff > 0)
+			return (false);
+		i++;
+	}
+	return (true);
+}
+
+bool	is_int_str(const char *s)
+{
+	int		i;
+	int		is_neg;
+
+	if (!s || s[0] == '\0')
+		return (false);
+	if (s[0] == '0' && s[1] != '\0')
+		return (false);
+	if (s[0] == '-' && (s[1] == '0' || s[1] == '\0'))
+		return (false);
+	is_neg = 0;
+	if (s[0] == '-')
+	{
+		s = s + 1;
+		is_neg = 1;
+	}
+	i = 0;
+	while (s[i])
+		if (is_num_char(s[i++]) == false)
+			return (false);
+	if (i > 10)
+		return (false);
+	if (i == 10 && safe(s, is_neg) == false)
+		return (false);
+	return (true);
+}
+
 
 void	trigger_termination(sem_t *stop)
 {

@@ -65,7 +65,7 @@ void	philosopher(int id, t_config *cfg, t_sem *sem, long long start_time)
 	pthread_detach(thread[1]);
 
 	// routine
-	wait_for(time_to_wait_in_the_beginning(id, cfg)); // tunable
+	wait_for(time_to_wait_first(id, cfg)); // tunable
 	eat_count = 0;
 	while (1)
 	{

@@ -70,8 +70,8 @@ int			simulation(t_config *cfg, t_sem *sem);
 // time.c
 long long	current_unixtime_ms(void);
 void		wait_for(long long dur);
-long long	get_time_to_wait_in_the_beginning(int id, t_config *cfg);
-long long	get_time_to_wait_on_interval(int id, t_config *cfg);
+long long	time_to_wait_first(int id, t_config *cfg);
+long long	time_to_wait_on_interval(int id, t_config *cfg);
 
 // utils.c
 bool		is_num_char(const char c);
