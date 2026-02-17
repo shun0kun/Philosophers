@@ -6,13 +6,13 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 16:03:10 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/17 12:07:40 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/17 15:51:35 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	philo_eat(int id, t_shared *shared, int *eat_count)
+int	philo_eat(int id, t_shared *shared)
 {
 	int			ret;
 
@@ -27,9 +27,8 @@ int	philo_eat(int id, t_shared *shared, int *eat_count)
 	put_forks(id, shared);
 	if (ret == 0)
 	{
-		(*eat_count)++;
-		if (shared->cfg.option_enabled && *eat_count
-			>= shared->cfg.times_to_eat)
+		increment_eat_count(id, shared);
+		if (shared->cfg.option_enabled && is_full(id, shared))
 			return (-2);
 	}
 	return (ret);

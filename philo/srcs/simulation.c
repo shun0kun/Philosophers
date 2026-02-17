@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 16:20:32 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/17 12:25:56 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/17 15:12:55 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ int	simulation(t_shared *shared)
 	shared->start_time = current_unixtime_ms();
 	i = 0;
 	while (i < shared->cfg.num_philos)
-		shared->last_eat_time[i++] = shared->start_time;
+		shared->eat_stat[i++].last_eat_time = shared->start_time;
 	create_threads(thread, shared, philo);
 	join_threads(thread, shared);
 	free(thread);

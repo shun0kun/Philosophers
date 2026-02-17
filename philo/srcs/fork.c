@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 16:17:40 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/17 12:18:40 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/17 15:56:38 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ int	take_one_and_wait_die(int id, t_shared *shared, int first)
 {
 	pthread_mutex_lock(&shared->fork[first].mu);
 	shared->fork[first].state = BUSY;
-	if (try_mark_action(shared, id, "take a fork") < 0)
+	if (try_mark_action(shared, id, "has taken a fork") < 0)
 	{
 		pthread_mutex_unlock(&shared->fork[first].mu);
 		return (-1);
@@ -39,8 +39,8 @@ int	try_take_both(int id, t_shared *shared, int first, int second)
 	{
 		shared->fork[first].state = BUSY;
 		shared->fork[second].state = BUSY;
-		if (try_mark_action(shared, id, "take a fork") < 0
-			|| try_mark_action(shared, id, "take a fork") < 0)
+		if (try_mark_action(shared, id, "has taken a fork") < 0
+			|| try_mark_action(shared, id, "has taken a fork") < 0)
 		{
 			shared->fork[first].state = IDLE;
 			shared->fork[second].state = IDLE;

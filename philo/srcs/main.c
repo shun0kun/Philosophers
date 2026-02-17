@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 16:19:52 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/17 12:28:52 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/17 14:58:32 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,10 @@ int	main(int argc, char **argv)
 	t_shared	shared;
 
 	if (parse_args(argc, argv, &cfg) < 0)
+	{
+		write(STDERR_FILENO, "Error: Invalid input\n", 21);
 		return (1);
+	}
 	if (init_shared(&shared, &cfg) < 0)
 		return (1);
 	simulation(&shared);

@@ -64,8 +64,8 @@ The simulation stops when:
 ### Use of AI
 
 - Understanding the Dining Philosophers Problem.
-- Clarifying concepts related to threads and mutexes.
-- Learning how to use the pthread library.
+- Clarifying concepts related to threads, mutexes, and semaphores.
+- Learning how to use the pthread library and semaphore library.
 - Reviewing the program's logic and design.
 - Exploring possible improvements and alternative implementation approaches.
 - Improving the English sentences in this README.

@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 16:20:36 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/17 12:27:36 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/17 15:25:32 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ int	reap_if_dead(int id, t_shared *shared)
 {
 	long long	now;
 
+	if (is_full(id, shared))
+		return (0);
 	pthread_mutex_lock(&shared->write_mu);
 	if (must_stop(shared))
 	{
@@ -23,7 +25,7 @@ int	reap_if_dead(int id, t_shared *shared)
 		return (-1);
 	}
 	now = current_unixtime_ms();
-	if (now - shared->last_eat_time[id] > shared->cfg.time_to_die)
+	if (now - shared->eat_stat[id].last_eat_time > shared->cfg.time_to_die)
 	{
 		set_stop_flag(shared);
 		printf("%lld\t%d\t%s\n", now - shared->start_time, id + 1, "died");
@@ -49,6 +51,8 @@ void	*reaper(void *arg)
 				return (NULL);
 			id++;
 		}
+		if (shared->cfg.option_enabled && everyone_is_full(shared))
+			return (NULL);
 		usleep(500);
 	}
 	return (NULL);
@@ -58,16 +62,14 @@ void	*philosopher(void *arg)
 {
 	int			id;
 	t_shared	*shared;
-	int			eat_count;
 
 	id = ((t_philo *)arg)->id;
 	shared = ((t_philo *)arg)->shared;
-	eat_count = 0;
 	if (wait_for(shared, time_to_wait_first(id, shared)) < 0)
 		return (NULL);
 	while (1)
 	{
-		if (philo_eat(id, shared, &eat_count) < 0)
+		if (philo_eat(id, shared) < 0)
 			break ;
 		if (philo_sleep(id, shared) < 0)
 			break ;

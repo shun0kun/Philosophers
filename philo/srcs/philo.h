@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 16:20:23 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/17 12:28:57 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/17 15:59:31 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,13 +48,20 @@ typedef struct s_stop_flag
 	pthread_mutex_t	mu;
 }	t_stop_flag;
 
+typedef struct s_eat_stat
+{
+	long long		last_eat_time;
+	int				eat_count;
+	pthread_mutex_t	mu;
+}	t_eat_stat;
+
 typedef struct s_shared
 {
 	t_config			cfg;
 	t_fork				*fork;
 	t_stop_flag			stop_flag;
 	pthread_mutex_t		write_mu;
-	long long			*last_eat_time;
+	t_eat_stat			*eat_stat;
 	long long			start_time;
 }	t_shared;
 
@@ -65,18 +72,26 @@ typedef struct s_philo
 }	t_philo;
 
 // actions.c
-int			philo_eat(int id, t_shared *shared, int *eat_count);
+int			philo_eat(int id, t_shared *shared);
 int			philo_sleep(int id, t_shared *shared);
 int			philo_think(int id, t_shared *shared);
 
 // characters.c
+bool		is_full(int id, t_shared *shared);
 int			reap_if_dead(int id, t_shared *shared);
+bool		everyone_is_full(t_shared *shared);
 void		*reaper(void *arg);
 void		*philosopher(void *arg);
+
+// eat_count.c
+bool		is_full(int id, t_shared *shared);
+bool		everyone_is_full(t_shared *shared);
+void		increment_eat_count(int id, t_shared *shared);
 
 // fork.c
 int			take_one_and_wait_die(int id, t_shared *shared, int first);
 int			try_take_both(int id, t_shared *shared, int first, int second);
+void		set_fork_order(int id, t_shared *shared, int *first, int *second);
 int			take_forks(int id, t_shared *shared);
 void		put_forks(int id, t_shared *shared);
 
@@ -88,6 +103,7 @@ int			try_mark_eating(int id, t_shared *shared);
 int			try_mark_action(t_shared *shared, int id, const char *msg);
 
 // shared.c
+void		init_shared_mutexes(t_shared *shared, t_config *cfg);
 int			init_shared(t_shared *shared, t_config *cfg);
 void		destroy_shared(t_shared *shared);
 

@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/17 12:10:44 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/17 12:10:45 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/17 15:13:46 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,18 +22,19 @@ int	try_mark_eating(int id, t_shared *shared)
 		pthread_mutex_unlock(&shared->write_mu);
 		return (-1);
 	}
-	tmp = shared->last_eat_time[id];
-	shared->last_eat_time[id] = current_unixtime_ms();
-	if (shared->last_eat_time[id] - tmp > shared->cfg.time_to_die)
+	tmp = shared->eat_stat[id].last_eat_time;
+	shared->eat_stat[id].last_eat_time = current_unixtime_ms();
+	if (shared->eat_stat[id].last_eat_time - tmp > shared->cfg.time_to_die)
 	{
 		set_stop_flag(shared);
-		printf("%lld\t%d\t%s\n",
-			shared->last_eat_time[id] - shared->start_time, id + 1, "died");
+		printf("%lld\t%d\t%s\n", shared->eat_stat[id].last_eat_time
+			- shared->start_time, id + 1, "died");
 		pthread_mutex_unlock(&shared->write_mu);
 		return (-1);
 	}
 	printf("%lld\t%d\t%s\n",
-		shared->last_eat_time[id] - shared->start_time, id + 1, "is eating");
+		shared->eat_stat[id].last_eat_time
+		- shared->start_time, id + 1, "is eating");
 	pthread_mutex_unlock(&shared->write_mu);
 	return (0);
 }
@@ -49,7 +50,7 @@ int	try_mark_action(t_shared *shared, int id, const char *msg)
 		return (-1);
 	}
 	now = current_unixtime_ms();
-	if (now - shared->last_eat_time[id] > shared->cfg.time_to_die)
+	if (now - shared->eat_stat[id].last_eat_time > shared->cfg.time_to_die)
 	{
 		set_stop_flag(shared);
 		printf("%lld\t%d\t%s\n", now - shared->start_time, id + 1, "died");
