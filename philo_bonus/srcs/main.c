@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/18 09:24:23 by sshimots          #+#    #+#             */
+/*   Updated: 2026/02/18 15:56:30 by sshimots         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo_bonus.h"
 
 int	parse_args(int argc, char **argv, t_config *cfg)
@@ -11,9 +23,9 @@ int	parse_args(int argc, char **argv, t_config *cfg)
 		if (is_int_str(argv[i++]) == false)
 			return (-1);
 	cfg->num_philos = ft_atoi(argv[1]);
-	cfg->time_to_die = ft_atoi(argv[2]);
-	cfg->time_to_eat = ft_atoi(argv[3]);
-	cfg->time_to_sleep = ft_atoi(argv[4]);
+	cfg->time_to_die = ft_atoi(argv[2]) * 1000;
+	cfg->time_to_eat = ft_atoi(argv[3]) * 1000;
+	cfg->time_to_sleep = ft_atoi(argv[4]) * 1000;
 	if (argc == 6)
 	{
 		cfg->times_to_eat = ft_atoi(argv[5]);
@@ -44,8 +56,7 @@ int	main(int argc, char **argv)
 		return (1);
 	}
 	simulation(&cfg, &sem);
-	close_sems(&sem, cfg.num_philos);
-	free(sem.meal);
-	unlink_sems(cfg.num_philos);
+	close_sems(&sem);
+	unlink_sems();
 	return (0);
 }

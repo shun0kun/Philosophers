@@ -2,7 +2,7 @@ CC = cc
 CFLAGS = -Wall -Wextra -Werror
 DIR_SRCS = srcs/
 DIR_OBJS = objs/
-SRCS = actions.c main.c philosopher.c semaphore.c simulation.c time.c utils.c 
+SRCS = actions.c main.c mark.c philosopher.c semaphore.c simulation.c time.c time2.c utils.c 
 OBJS = $(SRCS:.c=.o)
 SRCS_PATH = $(addprefix $(DIR_SRCS), $(SRCS))
 OBJS_PATH = $(addprefix $(DIR_OBJS), $(OBJS))

@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 16:20:36 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/17 15:25:32 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/18 15:19:42 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,11 +24,11 @@ int	reap_if_dead(int id, t_shared *shared)
 		pthread_mutex_unlock(&shared->write_mu);
 		return (-1);
 	}
-	now = current_unixtime_ms();
+	now = current_unixtime_us();
 	if (now - shared->eat_stat[id].last_eat_time > shared->cfg.time_to_die)
 	{
 		set_stop_flag(shared);
-		printf("%lld\t%d\t%s\n", now - shared->start_time, id + 1, "died");
+		printf("%lld\t%d\t%s\n", utom(now - shared->start_time), id + 1, "died");
 		pthread_mutex_unlock(&shared->write_mu);
 		return (-1);
 	}

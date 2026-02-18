@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 16:20:32 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/17 15:12:55 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/18 15:23:40 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ int	simulation(t_shared *shared)
 		free(thread);
 		return (-1);
 	}
-	shared->start_time = current_unixtime_ms();
+	shared->start_time = current_unixtime_us();
 	i = 0;
 	while (i < shared->cfg.num_philos)
 		shared->eat_stat[i++].last_eat_time = shared->start_time;

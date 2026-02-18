@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 16:19:52 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/17 16:24:58 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/18 15:16:08 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,9 @@ int	parse_args(int argc, char **argv, t_config *cfg)
 		if (is_int_str(argv[i++]) == false)
 			return (-1);
 	cfg->num_philos = ft_atoi(argv[1]);
-	cfg->time_to_die = ft_atoi(argv[2]);
-	cfg->time_to_eat = ft_atoi(argv[3]);
-	cfg->time_to_sleep = ft_atoi(argv[4]);
+	cfg->time_to_die = ft_atoi(argv[2]) * 1000;
+	cfg->time_to_eat = ft_atoi(argv[3]) * 1000;
+	cfg->time_to_sleep = ft_atoi(argv[4]) * 1000;
 	if (argc == 6)
 	{
 		cfg->times_to_eat = ft_atoi(argv[5]);

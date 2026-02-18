@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 16:20:23 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/17 15:59:31 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/18 15:27:35 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 # include <sys/time.h>
 # include <stdbool.h>
 
+// All time values are expressed in microseconds (us).
 typedef struct s_config
 {
 	int			num_philos;
@@ -117,10 +118,11 @@ bool		must_stop(t_shared *shared);
 void		set_stop_flag(t_shared *shared);
 
 // time.c
+long long	utom(long long time_us);
 long long	time_to_wait_first(int id, t_shared *shared);
 long long	time_to_wait_on_interval(int id, t_shared *shared);
 int			wait_for(t_shared *shared, long long dur);
-long long	current_unixtime_ms(void);
+long long	current_unixtime_us(void);
 
 // utils.c
 int			ft_atoi(const char *s);

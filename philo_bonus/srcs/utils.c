@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/18 09:24:59 by sshimots          #+#    #+#             */
+/*   Updated: 2026/02/18 15:59:49 by sshimots         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo_bonus.h"
 
 int	ft_atoi(const char *s)
@@ -75,12 +87,6 @@ bool	is_int_str(const char *s)
 	return (true);
 }
 
-
-void	trigger_termination(sem_t *stop)
-{
-	sem_post(stop);
-}
-
 int	get_num_len(int nb)
 {
 	int	count;
@@ -94,12 +100,4 @@ int	get_num_len(int nb)
 		count++;
 	}
 	return (count);
-}
-
-
-// debug
-void	fp(const char *s)
-{
-	dprintf(STDERR_FILENO, "%s\n", s);
-	fflush(stderr);
 }
