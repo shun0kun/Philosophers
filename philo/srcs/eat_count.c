@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/17 15:30:11 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/17 15:44:31 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/20 09:23:59 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,13 +16,13 @@ bool	is_full(int id, t_shared *shared)
 {
 	if (shared->cfg.option_enabled == false)
 		return (false);
-	pthread_mutex_lock(&shared->eat_stat[id].mu);
-	if (shared->eat_stat[id].eat_count >= shared->cfg.times_to_eat)
+	pthread_mutex_lock(&shared->eat[id].mu);
+	if (shared->eat[id].count >= shared->cfg.times_to_eat)
 	{
-		pthread_mutex_unlock(&shared->eat_stat[id].mu);
+		pthread_mutex_unlock(&shared->eat[id].mu);
 		return (true);
 	}
-	pthread_mutex_unlock(&shared->eat_stat[id].mu);
+	pthread_mutex_unlock(&shared->eat[id].mu);
 	return (false);
 }
 
@@ -44,7 +44,7 @@ bool	everyone_is_full(t_shared *shared)
 
 void	increment_eat_count(int id, t_shared *shared)
 {
-	pthread_mutex_lock(&shared->eat_stat[id].mu);
-	(shared->eat_stat[id].eat_count)++;
-	pthread_mutex_unlock(&shared->eat_stat[id].mu);
+	pthread_mutex_lock(&shared->eat[id].mu);
+	(shared->eat[id].count)++;
+	pthread_mutex_unlock(&shared->eat[id].mu);
 }

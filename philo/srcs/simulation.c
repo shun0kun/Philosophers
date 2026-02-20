@@ -6,13 +6,13 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 16:20:32 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/18 15:23:40 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/20 11:04:54 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	create_threads(pthread_t *thread, t_shared *shared, t_philo *philo)
+void	spawn_characters(pthread_t *thread, t_shared *shared, t_philo *philo)
 {
 	int	i;
 
@@ -27,7 +27,7 @@ void	create_threads(pthread_t *thread, t_shared *shared, t_philo *philo)
 	}
 }
 
-void	join_threads(pthread_t *thread, t_shared *shared)
+void	wait_characters(pthread_t *thread, t_shared *shared)
 {
 	int	i;
 
@@ -55,9 +55,9 @@ int	simulation(t_shared *shared)
 	shared->start_time = current_unixtime_us();
 	i = 0;
 	while (i < shared->cfg.num_philos)
-		shared->eat_stat[i++].last_eat_time = shared->start_time;
-	create_threads(thread, shared, philo);
-	join_threads(thread, shared);
+		shared->eat[i++].last_time = shared->start_time;
+	spawn_characters(thread, shared, philo);
+	wait_characters(thread, shared);
 	free(thread);
 	free(philo);
 	return (0);

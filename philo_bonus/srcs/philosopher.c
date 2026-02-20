@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/18 09:24:38 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/18 15:58:39 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/20 11:42:03 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,10 +39,11 @@ void	*monitor_starvation(void *arg)
 	{
 		sem_wait(monitor->sem->write_lock);
 		now = current_unixtime_us();
-		if (now - *(monitor->last_meal_time)
+		if (now - *(monitor->last_eat_time)
 			> monitor->cfg->time_to_die)
 		{
-			printf("%lld\t%d\t%s\n", utom(now - monitor->start_time), monitor->id + 1, "died");
+			printf("%lld\t%d\t%s\n",
+				utom(now - monitor->start_time), monitor->id + 1, "died");
 			trigger_termination(monitor->sem->stop);
 			return (NULL);
 		}
@@ -60,7 +61,7 @@ void	create_and_detatch_threads(t_philo *philo,
 	tw->sem = philo->sem;
 	monitor->id = philo->id;
 	monitor->start_time = philo->start_time;
-	monitor->last_meal_time = &philo->last_eat_time;
+	monitor->last_eat_time = &philo->last_eat_time;
 	monitor->cfg = philo->cfg;
 	monitor->sem = philo->sem;
 	pthread_create(&thread[0], NULL, termination_worker, tw);
@@ -74,6 +75,11 @@ void	philosopher(t_philo philo)
 	t_termination_worker	tw;
 	t_monitor				monitor;
 
+	if (philo.cfg->option_enabled && philo.cfg->times_to_eat == 0)
+	{
+		close_sems(philo.sem);
+		exit(0);
+	}
 	philo.last_eat_time = philo.start_time;
 	create_and_detatch_threads(&philo, &tw, &monitor);
 	wait_for(time_to_wait_first(&philo));

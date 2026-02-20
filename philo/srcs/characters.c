@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 16:20:36 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/18 15:19:42 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/20 10:18:31 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,21 +18,22 @@ int	reap_if_dead(int id, t_shared *shared)
 
 	if (is_full(id, shared))
 		return (0);
-	pthread_mutex_lock(&shared->write_mu);
+	pthread_mutex_lock(&shared->mark_mu);
 	if (must_stop(shared))
 	{
-		pthread_mutex_unlock(&shared->write_mu);
+		pthread_mutex_unlock(&shared->mark_mu);
 		return (-1);
 	}
 	now = current_unixtime_us();
-	if (now - shared->eat_stat[id].last_eat_time > shared->cfg.time_to_die)
+	if (now - shared->eat[id].last_time > shared->cfg.time_to_die)
 	{
 		set_stop_flag(shared);
-		printf("%lld\t%d\t%s\n", utom(now - shared->start_time), id + 1, "died");
-		pthread_mutex_unlock(&shared->write_mu);
+		printf("%lld\t%d\t%s\n",
+			utom(now - shared->start_time), id + 1, "died");
+		pthread_mutex_unlock(&shared->mark_mu);
 		return (-1);
 	}
-	pthread_mutex_unlock(&shared->write_mu);
+	pthread_mutex_unlock(&shared->mark_mu);
 	return (0);
 }
 
@@ -65,6 +66,8 @@ void	*philosopher(void *arg)
 
 	id = ((t_philo *)arg)->id;
 	shared = ((t_philo *)arg)->shared;
+	if (shared->cfg.option_enabled && shared->cfg.times_to_eat == 0)
+		return (NULL);
 	if (wait_for(shared, time_to_wait_first(id, shared)) < 0)
 		return (NULL);
 	while (1)

@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/18 09:24:34 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/18 16:01:15 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/20 10:45:08 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ typedef struct s_monitor
 {
 	int			id;
 	long long	start_time;
-	long long	*last_meal_time;
+	long long	*last_eat_time;
 	t_config	*cfg;
 	t_sem		*sem;
 }	t_monitor;

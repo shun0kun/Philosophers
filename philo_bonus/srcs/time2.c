@@ -1,37 +1,16 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   time2.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/20 11:14:32 by sshimots          #+#    #+#             */
+/*   Updated: 2026/02/20 11:14:33 by sshimots         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo_bonus.h"
-
-// long long	time_to_wait_first(t_philo *philo)
-// {
-// 	if (philo->cfg->num_philos % 2 == 0)
-// 	{
-// 		if (philo->id < philo->cfg->num_philos / 2)
-// 			return (0);
-// 		else if (philo->id >= philo->cfg->num_philos / 2)
-// 			return (philo->cfg->time_to_eat);
-// 	}
-// 	else
-// 	{
-// 		if (philo->id == 0)
-// 			return (0);
-// 		else if (philo->id > 0 && philo->id < philo->cfg->num_philos / 2 + 1)
-// 			return (philo->cfg->time_to_eat);
-// 		else if (philo->id >= philo->cfg->num_philos / 2 + 1)
-// 			return (philo->cfg->time_to_eat * 2);
-// 	}
-// 	return (0);
-// }
-
-// long long	time_to_wait_on_interval(t_philo *philo)
-// {
-// 	if (philo->cfg->num_philos % 2 == 0 && philo->cfg->time_to_sleep
-// 		< philo->cfg->time_to_eat)
-// 		return (philo->cfg->time_to_eat - philo->cfg->time_to_sleep);
-// 	else if (philo->cfg->num_philos % 2 != 0
-// 		&& philo->cfg->time_to_sleep < philo->cfg->time_to_eat * 2)
-// 		return (philo->cfg->time_to_eat * 2 - philo->cfg->time_to_sleep);
-// 	else
-// 		return (0);
-// }
 
 long long	time_to_wait_first(t_philo *philo)
 {

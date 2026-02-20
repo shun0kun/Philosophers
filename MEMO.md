@@ -1,4 +1,5 @@
 # 緊急重要事項
+- ./philo 1 * * * 0のとき無限ループ
 - 朝、校舎に来たら、bonusを整理して、値をチューニングして、提出する！
 
 - MANDATORYもBONUSも、./philo 3 179 60 60などで、死んでいるはずの時間なのに食べ始めて生き延びてしまっている！！！時間が死亡時間以上なら必ず死亡するようにする！！！！！！！！！！
@@ -130,6 +131,11 @@ main
 - なんかmandatoryよりも簡単じゃね？？
 - 食べた直後にdieログ出さないようにする。
 - MANDATORYもBONUSも、./philo 3 179 60 60などで、死んでいるはずの時間なのに食べ始めて生き延びてしまっている！！！時間が死亡時間以上なら必ず死亡するようにする！！！！！！！！！！
+
+# CHECK
+- `valgrind --leak-check=full `
+- `valgrind --tool=helgrind `
+- `valgrind --tool=drd `
 
 ```c
 #include <fcntl.h>

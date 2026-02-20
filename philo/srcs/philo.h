@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 16:20:23 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/18 15:27:35 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/20 11:12:24 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,26 +43,26 @@ typedef struct s_fork
 	pthread_mutex_t	mu;
 }	t_fork;
 
-typedef struct s_stop_flag
+typedef struct s_stop
 {
 	bool			flag;
 	pthread_mutex_t	mu;
-}	t_stop_flag;
+}	t_stop;
 
-typedef struct s_eat_stat
+typedef struct s_eat
 {
-	long long		last_eat_time;
-	int				eat_count;
+	long long		last_time;
+	int				count;
 	pthread_mutex_t	mu;
-}	t_eat_stat;
+}	t_eat;
 
 typedef struct s_shared
 {
 	t_config			cfg;
 	t_fork				*fork;
-	t_stop_flag			stop_flag;
-	pthread_mutex_t		write_mu;
-	t_eat_stat			*eat_stat;
+	t_stop				stop;
+	pthread_mutex_t		mark_mu;
+	t_eat				*eat;
 	long long			start_time;
 }	t_shared;
 
@@ -109,8 +109,9 @@ int			init_shared(t_shared *shared, t_config *cfg);
 void		destroy_shared(t_shared *shared);
 
 // simulation.c
-void		create_threads(pthread_t *thread, t_shared *shared, t_philo *philo);
-void		join_threads(pthread_t *thread, t_shared *shared);
+void		spawn_characters(pthread_t *thread, t_shared *shared,
+				t_philo *philo);
+void		wait_characters(pthread_t *thread, t_shared *shared);
 int			simulation(t_shared *shared);
 
 // stop.c

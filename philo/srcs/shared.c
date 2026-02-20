@@ -6,7 +6,7 @@
 /*   By: sshimots <sshimots@student.42tokyo.jp>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/02/13 16:20:28 by sshimots          #+#    #+#             */
-/*   Updated: 2026/02/17 15:58:36 by sshimots         ###   ########.fr       */
+/*   Updated: 2026/02/20 10:19:39 by sshimots         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,9 @@ void	init_shared_mutexes(t_shared *shared, t_config *cfg)
 		pthread_mutex_init(&shared->fork[i++].mu, NULL);
 	i = 0;
 	while (i < cfg->num_philos)
-		pthread_mutex_init(&shared->eat_stat[i++].mu, NULL);
-	pthread_mutex_init(&shared->stop_flag.mu, NULL);
-	pthread_mutex_init(&shared->write_mu, NULL);
+		pthread_mutex_init(&shared->eat[i++].mu, NULL);
+	pthread_mutex_init(&shared->stop.mu, NULL);
+	pthread_mutex_init(&shared->mark_mu, NULL);
 }
 
 int	init_shared(t_shared *shared, t_config *cfg)
@@ -36,19 +36,19 @@ int	init_shared(t_shared *shared, t_config *cfg)
 	shared->fork = malloc(sizeof(t_fork) * cfg->num_philos);
 	if (!shared->fork)
 		return (-1);
-	shared->eat_stat = malloc(sizeof(t_eat_stat) * cfg->num_philos);
-	if (!shared->eat_stat)
+	shared->eat = malloc(sizeof(t_eat) * cfg->num_philos);
+	if (!shared->eat)
 	{
 		free(shared->fork);
 		return (-1);
 	}
-	shared->stop_flag.flag = false;
+	shared->stop.flag = false;
 	i = 0;
 	while (i < cfg->num_philos)
 		shared->fork[i++].state = IDLE;
 	i = 0;
 	while (i < cfg->num_philos)
-		shared->eat_stat[i++].eat_count = 0;
+		shared->eat[i++].count = 0;
 	init_shared_mutexes(shared, cfg);
 	return (0);
 }
@@ -64,9 +64,9 @@ void	destroy_shared(t_shared *shared)
 		pthread_mutex_destroy(&shared->fork[i++].mu);
 	i = 0;
 	while (i < shared->cfg.num_philos)
-		pthread_mutex_destroy(&shared->eat_stat[i++].mu);
-	pthread_mutex_destroy(&shared->stop_flag.mu);
-	pthread_mutex_destroy(&shared->write_mu);
+		pthread_mutex_destroy(&shared->eat[i++].mu);
+	pthread_mutex_destroy(&shared->stop.mu);
+	pthread_mutex_destroy(&shared->mark_mu);
 	free(shared->fork);
-	free(shared->eat_stat);
+	free(shared->eat);
 }
